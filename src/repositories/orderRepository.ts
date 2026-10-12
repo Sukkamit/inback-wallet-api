@@ -170,9 +170,12 @@ export class OrderRepository {
     const currentOrder = this.mapRowToOrder(selectRes.rows[0]);
     const leaseExpiresAt = new Date(Date.now() + leaseSeconds * 1000);
 
-    // 2. Insert into bot_executions (unique constraint on order_no)
+    // 2. Upsert into bot_executions (unique constraint on order_no, updates bot_id and claimed_at on retry/re-queue)
     await client.query(
-      `INSERT INTO bot_executions (order_no, bot_id, claimed_at) VALUES ($1, $2, NOW())`,
+      `INSERT INTO bot_executions (order_no, bot_id, claimed_at)
+       VALUES ($1, $2, NOW())
+       ON CONFLICT (order_no) DO UPDATE
+       SET bot_id = EXCLUDED.bot_id, claimed_at = EXCLUDED.claimed_at;`,
       [orderNo, botId]
     );
 
