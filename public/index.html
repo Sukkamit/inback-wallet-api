@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Tracking & Case Management Live Demo (แบบทดสอบ A)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-main: #0f172a;
+      --bg-card: #1e293b;
+      --bg-card-sub: #172033;
+      --border: #334155;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --purple: #8b5cf6;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg-main);
+      color: var(--text);
+      font-family: 'Prompt', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      background: #090d16;
+      border-bottom: 1px solid var(--border);
+      padding: 14px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand-icon {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; color: white;
+    }
+    .brand-title {
+      font-size: 1.15rem; font-weight: 700;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .badge {
+      font-size: 0.75rem; font-family: 'JetBrains Mono', monospace;
+      padding: 2px 8px; border-radius: 9999px;
+      background: rgba(16, 185, 129, 0.15); color: var(--success);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+    main {
+      flex: 1; padding: 24px 28px; max-width: 1440px; margin: 0 auto; width: 100%;
+      display: flex; flex-direction: column; gap: 20px;
+    }
+    .grid-2 {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+    }
+    @media (max-width: 860px) { .grid-2 { grid-template-columns: 1fr; } }
+    .card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 20px;
+      display: flex; flex-direction: column; gap: 14px;
+    }
+    .card-title {
+      font-size: 1.05rem; font-weight: 600;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .btn {
+      font-family: inherit; font-size: 0.85rem; font-weight: 500;
+      padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      transition: all 0.2s;
+    }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-success { background: var(--success); color: white; }
+    .btn-warning { background: var(--warning); color: #000; font-weight: 600; }
+    .btn-danger { background: var(--danger); color: white; }
+    .btn-refresh { background: var(--bg-card-sub); color: white; border: 1px solid var(--border); }
+    .btn-sm { padding: 4px 10px; font-size: 0.78rem; }
+    .form-group { display: flex; flex-direction: column; gap: 4px; }
+    .form-group label { font-size: 0.8rem; color: var(--text-muted); }
+    .form-control {
+      background: var(--bg-card-sub); border: 1px solid var(--border);
+      color: white; padding: 8px 12px; border-radius: 6px; font-family: inherit; font-size: 0.85rem;
+    }
+    .tabs { display: flex; gap: 8px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+    .tab-btn {
+      background: transparent; border: none; color: var(--text-muted);
+      font-family: inherit; font-size: 0.85rem; font-weight: 600; padding: 6px 14px;
+      border-radius: 6px; cursor: pointer;
+    }
+    .tab-btn.active { background: var(--primary); color: white; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.825rem; text-align: left; }
+    th { background: var(--bg-card-sub); color: var(--text-muted); padding: 10px; border-bottom: 1px solid var(--border); }
+    td { padding: 10px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-family: 'JetBrains Mono', monospace; }
+    .status-tag {
+      padding: 2px 7px; border-radius: 4px; font-size: 0.72rem; font-weight: 600; text-transform: uppercase;
+    }
+    .status-pending_payment { background: rgba(148, 163, 184, 0.2); color: #cbd5e1; }
+    .status-queued { background: rgba(59, 130, 246, 0.2); color: #93c5fd; }
+    .status-in_progress { background: rgba(245, 158, 11, 0.2); color: #fcd34d; }
+    .status-completed { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; }
+    .status-failed { background: rgba(239, 68, 68, 0.2); color: #fca5a5; }
+    .status-delayed { background: rgba(168, 85, 247, 0.2); color: #d8b4fe; }
+    .status-refunded { background: rgba(236, 72, 153, 0.2); color: #f472b6; }
+    .case-badge {
+      display: inline-block; background: rgba(245, 158, 11, 0.15); color: #fbbf24;
+      padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="brand-icon">IN</div>
+      <div class="brand-title">
+        Order Tracking & Problem Cases Engine (โจทย์ A)
+        <span class="badge">API & DASHBOARD LIVE</span>
+      </div>
+    </div>
+    <a href="/health" target="_blank" class="btn btn-sm btn-refresh" style="text-decoration:none;">Health Check API</a>
+  </header>
+
+  <main>
+    <div class="grid-2">
+      <!-- Create Order & Simulation Card -->
+      <div class="card">
+        <h2 class="card-title">🛒 1. สร้างออเดอร์ใหม่ (Create Order)</h2>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <div class="form-group">
+            <label>เกม (Game)</label>
+            <input type="text" id="game-code" class="form-control" value="ROV" />
+          </div>
+          <div class="form-group">
+            <label>แพ็กเกจ (Item)</label>
+            <input type="text" id="item-name" class="form-control" value="1,000 คูปอง" />
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <div class="form-group">
+            <label>Player UID</label>
+            <input type="text" id="player-uid" class="form-control" value="UID-998877" />
+          </div>
+          <div class="form-group">
+            <label>Server</label>
+            <input type="text" id="player-server" class="form-control" value="Asia-1" />
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <div class="form-group">
+            <label>ยอดเงิน (THB)</label>
+            <input type="number" id="order-price" class="form-control" value="350" />
+          </div>
+          <div class="form-group">
+            <label>Customer Email</label>
+            <input type="text" id="customer-email" class="form-control" value="customer@example.com" />
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="createOrder()">+ สร้างออเดอร์ (Pending Payment)</button>
+      </div>
+
+      <!-- Problem Cases Quick Simulation Card -->
+      <div class="card">
+        <h2 class="card-title">🧪 2. ทดสอบจำลอง 5 เคสปัญหา (5 Problem Cases)</h2>
+        <p style="font-size:0.8rem; color:var(--text-muted);">
+          ทดสอบความสามารถของระบบในการจัดการกับ 5 สถานการณ์ที่มักพบในการเติมเงินเกมอัตโนมัติ:
+        </p>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-card-sub); padding:8px 12px; border-radius:6px;">
+            <div><span class="case-badge">เคส 1</span> กรอก UID ผิด (ลูกค้าแจ้งแก้ไขเป้าหมาย)</div>
+            <button class="btn btn-sm btn-warning" onclick="simulateCase('case1')">ทดสอบ</button>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-card-sub); padding:8px 12px; border-radius:6px;">
+            <div><span class="case-badge">เคส 2</span> เกมปิดปรับปรุงเซิร์ฟเวอร์ (Server Maintenance)</div>
+            <button class="btn btn-sm btn-warning" onclick="simulateCase('case2')">ทดสอบ</button>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-card-sub); padding:8px 12px; border-radius:6px;">
+            <div><span class="case-badge">เคส 3</span> บอทค้าง / หลุดการเชื่อมต่อ (Auto Recovery)</div>
+            <button class="btn btn-sm btn-warning" onclick="simulateCase('case3')">ทดสอบ</button>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-card-sub); padding:8px 12px; border-radius:6px;">
+            <div><span class="case-badge">เคส 4</span> สลิปโอนเงินไม่ตรงยอด (Under-payment)</div>
+            <button class="btn btn-sm btn-warning" onclick="simulateCase('case4')">ทดสอบ</button>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-card-sub); padding:8px 12px; border-radius:6px;">
+            <div><span class="case-badge">เคส 5</span> สินค้าหมดกะทันหัน (Out of Stock & Refund)</div>
+            <button class="btn btn-sm btn-danger" onclick="simulateCase('case5')">ทดสอบ</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Orders Table Card -->
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div class="tabs">
+          <button class="tab-btn active" id="tab-current" onclick="switchTab('current')">ออเดอร์ปัจจุบัน (Current)</button>
+          <button class="tab-btn" id="tab-history" onclick="switchTab('history')">ประวัติออเดอร์ (History)</button>
+        </div>
+        <button class="btn btn-sm btn-refresh" onclick="loadOrders()">รีเฟรชข้อมูล</button>
+      </div>
+
+      <div style="overflow-x:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Order No</th>
+              <th>เกม & สินค้า</th>
+              <th>เป้าหมาย (UID / Server)</th>
+              <th>ยอดเงิน</th>
+              <th>สถานะ (Status)</th>
+              <th>ปัญหาที่บันทึก</th>
+              <th>ดำเนินการ (Actions)</th>
+            </tr>
+          </thead>
+          <tbody id="orders-tbody">
+            <tr><td colspan="7" style="text-align:center; color:var(--text-muted);">กำลังโหลดรายการออเดอร์...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    let currentTab = 'current';
+
+    async function loadOrders() {
+      try {
+        const res = await fetch(`/orders?tab=${currentTab}&limit=20`);
+        const json = await res.json();
+        const tbody = document.getElementById('orders-tbody');
+        if (json.success && Array.isArray(json.data)) {
+          if (json.data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:var(--text-muted);">ไม่มีรายการในแท็บนี้</td></tr>';
+            return;
+          }
+          tbody.innerHTML = json.data.map(o => `
+            <tr>
+              <td><strong>${o.orderNo}</strong></td>
+              <td>${o.gameCode || '-'}<br><span style="color:#64748b;font-size:0.75rem;">${o.itemName || ''}</span></td>
+              <td>${o.targetUid || '-'}<br><span style="color:#64748b;font-size:0.75rem;">${o.targetServer || ''}</span></td>
+              <td>${o.price} ${o.currency || 'THB'}</td>
+              <td><span class="status-tag status-${o.status.toLowerCase()}">${o.status}</span></td>
+              <td>${o.reportedIssue ? `<span class="case-badge">${o.reportedIssue}</span>` : '-'}</td>
+              <td>
+                ${o.status === 'PENDING_PAYMENT' ? `<button class="btn btn-sm btn-success" onclick="simulatePay('${o.orderNo}', ${o.price})">จำลองจ่ายเงิน</button>` : ''}
+                ${o.status === 'QUEUED' ? `<button class="btn btn-sm btn-primary" onclick="botClaim('${o.orderNo}')">บอทรับงาน</button>` : ''}
+                ${o.status === 'IN_PROGRESS' ? `<button class="btn btn-sm btn-success" onclick="botComplete('${o.orderNo}')">บอทจบงาน</button>` : ''}
+                ${o.status === 'DELAYED' ? `<button class="btn btn-sm btn-warning" onclick="editTarget('${o.orderNo}')">แก้ UID</button>` : ''}
+              </td>
+            </tr>
+          `).join('');
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    function switchTab(tab) {
+      currentTab = tab;
+      document.getElementById('tab-current').className = tab === 'current' ? 'tab-btn active' : 'tab-btn';
+      document.getElementById('tab-history').className = tab === 'history' ? 'tab-btn active' : 'tab-btn';
+      loadOrders();
+    }
+
+    async function createOrder() {
+      try {
+        const payload = {
+          gameCode: document.getElementById('game-code').value,
+          itemName: document.getElementById('item-name').value,
+          targetUid: document.getElementById('player-uid').value,
+          targetServer: document.getElementById('player-server').value,
+          price: parseFloat(document.getElementById('order-price').value) || 100,
+          customerEmail: document.getElementById('customer-email').value
+        };
+        const res = await fetch('/orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const json = await res.json();
+        if (json.success) {
+          alert(`สร้างออเดอร์ ${json.data.orderNo} สำเร็จ!`);
+          loadOrders();
+        } else {
+          alert('ผิดพลาด: ' + (json.error?.message || ''));
+        }
+      } catch (err) { alert('เกิดข้อผิดพลาด'); }
+    }
+
+    async function simulatePay(orderNo, amount) {
+      try {
+        const res = await fetch('/webhooks/bank', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            event: 'PAYMENT_RECEIVED',
+            orderNo: orderNo,
+            amount: amount,
+            transRef: 'TX-' + Math.floor(100000 + Math.random()*900000)
+          })
+        });
+        const json = await res.json();
+        if (json.success) {
+          alert(`จำลองการโอนเงินสำเร็จ! ออเดอร์ ${orderNo} ย้ายเข้าคิว QUEUED`);
+          loadOrders();
+        }
+      } catch (err) { alert('ส่ง Webhook ไม่สำเร็จ'); }
+    }
+
+    async function botClaim(orderNo) {
+      try {
+        const res = await fetch(`/bots/orders/${orderNo}/claim`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ botId: 'BOT-NODE-01' })
+        });
+        const json = await res.json();
+        if (json.success) {
+          alert(`บอท BOT-NODE-01 รับงาน ${orderNo} เรียบร้อย!`);
+          loadOrders();
+        }
+      } catch (err) { alert('เกิดข้อผิดพลาด'); }
+    }
+
+    async function botComplete(orderNo) {
+      try {
+        const res = await fetch(`/bots/orders/${orderNo}/complete`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ botId: 'BOT-NODE-01', result: { tx: 'SUCCESS_CONFIRMED' } })
+        });
+        const json = await res.json();
+        if (json.success) {
+          alert(`บอททำรายการสำเร็จ! ออเดอร์ ${orderNo} ย้ายไป COMPLETED`);
+          loadOrders();
+        }
+      } catch (err) { alert('เกิดข้อผิดพลาด'); }
+    }
+
+    async function editTarget(orderNo) {
+      const newUid = prompt('กรอก Player UID ใหม่ที่ถูกต้อง:');
+      if (!newUid) return;
+      try {
+        const res = await fetch(`/orders/${orderNo}/update-target`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ targetUid: newUid })
+        });
+        const json = await res.json();
+        if (json.success) {
+          alert('อัปเดต UID สำเร็จ! ออเดอร์ถูกนำกลับเข้าคิว QUEUED เพื่อให้บอทเริ่มทำรายการใหม่');
+          loadOrders();
+        }
+      } catch (err) { alert('เกิดข้อผิดพลาด'); }
+    }
+
+    async function simulateCase(caseType) {
+      // 1. Create order
+      const resOrder = await fetch('/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          gameCode: 'ROV',
+          itemName: '500 คูปอง',
+          targetUid: 'UID-TEST-ERR',
+          targetServer: 'TH-1',
+          price: 200,
+          customerEmail: 'tester@example.com'
+        })
+      });
+      const orderJson = await resOrder.json();
+      const orderNo = orderJson.data.orderNo;
+
+      if (caseType === 'case1') {
+        // Pay -> Claim -> Fail Wrong UID
+        await fetch('/webhooks/bank', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ event: 'PAYMENT_RECEIVED', orderNo, amount: 200, transRef: 'TX-CASE1' }) });
+        await fetch(`/bots/orders/${orderNo}/claim`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ botId: 'BOT-1' }) });
+        await fetch(`/bots/orders/${orderNo}/fail`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ botId: 'BOT-1', errorCode: 'PLAYER_NOT_FOUND', errorMessage: 'UID หรือเซิร์ฟเวอร์ไม่ถูกต้อง' }) });
+        alert(`จำลองเคส 1 สำเร็จ! ออเดอร์ ${orderNo} ติดสถานะ DELAYED (UID ผิด) ลูกค้าสามารถกดปุ่ม 'แก้ UID' เพื่อใส่ UID ที่ถูกต้องแล้วระบบจะส่งต่อให้บอททำต่ออัตโนมัติ`);
+      } else if (caseType === 'case2') {
+        // Maintenance
+        await fetch('/webhooks/bank', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ event: 'PAYMENT_RECEIVED', orderNo, amount: 200, transRef: 'TX-CASE2' }) });
+        await fetch(`/bots/orders/${orderNo}/claim`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ botId: 'BOT-1' }) });
+        await fetch(`/bots/orders/${orderNo}/fail`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ botId: 'BOT-1', errorCode: 'GAME_MAINTENANCE', errorMessage: 'เกมปิดปรับปรุงประจำสัปดาห์' }) });
+        alert(`จำลองเคส 2 สำเร็จ! ออเดอร์ ${orderNo} แจ้งเกมปิดปรับปรุง (ลูกค้าเลือกถือออเดอร์รอเปิดเซิร์ฟ หรือกด Refund ได้)`);
+      } else if (caseType === 'case3') {
+        // Bot Crash
+        await fetch('/webhooks/bank', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ event: 'PAYMENT_RECEIVED', orderNo, amount: 200, transRef: 'TX-CASE3' }) });
+        await fetch(`/bots/orders/${orderNo}/claim`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ botId: 'CRASHED-BOT' }) });
+        await fetch('/admin/jobs/trigger-recovery', { method: 'POST' });
+        alert(`จำลองเคส 3 สำเร็จ! ตรวจพบบอท CRASHED-BOT ขาด Heartbeat ระบบดึงงาน ${orderNo} คืนกลับคิว QUEUED ให้บอทอื่นทำแทนอัตโนมัติ`);
+      } else if (caseType === 'case4') {
+        // Underpayment
+        await fetch('/webhooks/bank', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ event: 'PAYMENT_RECEIVED', orderNo, amount: 150, transRef: 'TX-UNDER' }) });
+        alert(`จำลองเคส 4 สำเร็จ! ออเดอร์ราคา 200 บาท แต่โอนมา 150 บาท ระบบปรับสถานะเป็น WAITING_SUPPLEMENTARY_PAYMENT และส่งแจ้งเตือนยอดขาด`);
+      } else if (caseType === 'case5') {
+        // Out of Stock & Refund
+        await fetch('/webhooks/bank', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ event: 'PAYMENT_RECEIVED', orderNo, amount: 200, transRef: 'TX-CASE5' }) });
+        await fetch(`/orders/${orderNo}/refund`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ reason: 'OUT_OF_STOCK', actor: 'SYSTEM' }) });
+        alert(`จำลองเคส 5 สำเร็จ! สินค้าหมดกะทันหัน ระบบทำการคืนเงิน (Auto-Refund) และปรับสถานะเป็น REFUNDED ทันที`);
+      }
+      loadOrders();
+    }
+
+    loadOrders();
+  </script>
+</body>
+</html>

@@ -1,11 +1,28 @@
 import express, { Express, Request, Response } from 'express';
 import path from 'path';
+import fs from 'fs';
 import { OrderController } from './controllers/orderController';
 import { BotController } from './controllers/botController';
 import { WebhookController } from './controllers/webhookController';
 import { AdminController } from './controllers/adminController';
 import { errorHandler } from './middlewares/errorHandler';
 import { requestLogger } from './middlewares/requestLogger';
+
+function getDemoHtml(): string {
+  const candidates = [
+    path.join(__dirname, 'public/index.html'),
+    path.join(__dirname, '../src/public/index.html'),
+    path.resolve(process.cwd(), 'src/public/index.html'),
+    path.resolve(process.cwd(), 'public/index.html'),
+    path.resolve(process.cwd(), 'dist/public/index.html'),
+  ];
+  for (const candidate of candidates) {
+    if (fs.existsSync(candidate)) {
+      return fs.readFileSync(candidate, 'utf8');
+    }
+  }
+  return '<h1>Demo HTML not found</h1>';
+}
 
 export function createApp(): Express {
   const app = express();
@@ -26,7 +43,8 @@ export function createApp(): Express {
 
   // Live Interactive Demo UI
   app.get('/demo', (_req: Request, res: Response) => {
-    res.sendFile(path.join(publicDir, 'index.html'));
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.send(getDemoHtml());
   });
 
   // Health check
