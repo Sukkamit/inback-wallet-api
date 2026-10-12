@@ -241,6 +241,15 @@ Snapshots:   0 total
 Time:        10.723 s
 ```
 
-### 2. ทดสอบผ่าน REST Client หรือ Postman
-- **VS Code REST Client**: เปิดไฟล์ [orders.http](file:///c:/Project/inback/orders.http) แล้วกด `Send Request` เพื่อทดสอบตามลำดับ
-- **Postman**: นำเข้าไฟล์ [postman_collection.json](file:///c:/Project/inback/postman_collection.json) เข้าสู่ Postman แล้วสั่งรัน Collection ได้ทันที
+### 2. ทดสอบผ่าน Web Dashboard หรือ REST Client / Postman
+- **🌐 Interactive Web Dashboard**: เข้าใช้งานระบบผ่านหน้าเว็บได้ทันทีที่ **[http://localhost:3000](http://localhost:3000)** (มีปุ่มสร้างออเดอร์, จำลองการโอนเงินเต็ม/จ่ายขาด, ปุ่มบอทรับงาน, ปุ่มลองใหม่ (Retry), และปุ่มคืนเงินครบวงจร)
+- **VS Code REST Client**: เปิดไฟล์ [`orders.http`](file:///c:/Project/inback/orders.http) แล้วกด `Send Request` เพื่อทดสอบตามลำดับ
+- **Postman**: นำเข้าไฟล์ [`postman_collection.json`](file:///c:/Project/inback/postman_collection.json) เข้าสู่ Postman แล้วสั่งรัน Collection ได้ทันที
+
+---
+
+## 9. ข้อมูลอ้างอิงชุดข้อสอบทั้ง 4 ส่วน (Complete Suite Map)
+- **ข้อ 1 (Task A): Order Tracking API & State Machine** — `c:\Project\inback` (Port: 3000)
+- **ข้อ 2 (Task B): Aniimo Reverse Engineering & UID Top-Up** — `c:\Project\aniimo-topup` (Port: 3001)
+- **ข้อ 3 (Task C): Centralized Bot Monitoring & Control Center** — `c:\Project\oxide-bot-monitor` (Port: 3002)
+- **ข้อ 4 (Task D): AOEM BitCash Top-Up Bot & Balance Checker** — `c:\Project\aoem-bitcash-bot` (Port: 3003)
