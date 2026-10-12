@@ -10,12 +10,14 @@ const VALID_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
   [OrderStatus.QUEUED]: [
     OrderStatus.IN_PROGRESS,
     OrderStatus.DELAYED,
+    OrderStatus.REFUNDED,
   ],
   [OrderStatus.IN_PROGRESS]: [
     OrderStatus.COMPLETED,
     OrderStatus.QUEUED,      // Retry on transient failure or lease timeout
     OrderStatus.DELAYED,     // Retries exhausted or issue reported
     OrderStatus.FAILED,      // Permanent failure (e.g. invalid UID)
+    OrderStatus.REFUNDED,    // Stock out / cancel refund
   ],
   [OrderStatus.DELAYED]: [
     OrderStatus.QUEUED,      // Manual retry or fixed UID

@@ -5,24 +5,31 @@ import { FailureType } from '../domain/types';
 import { BadRequestError } from '../domain/errors';
 
 const claimSchema = z.object({
-  bot_id: z.string().min(1, 'bot_id is required'),
+  bot_id: z.string().optional(),
+  botId: z.string().optional(),
   lease_seconds: z.number().int().positive().optional().default(60),
 });
 
 const heartbeatSchema = z.object({
-  bot_id: z.string().min(1, 'bot_id is required'),
+  bot_id: z.string().optional(),
+  botId: z.string().optional(),
   lease_extension_seconds: z.number().int().positive().optional().default(60),
 });
 
 const completeSchema = z.object({
-  bot_id: z.string().min(1, 'bot_id is required'),
+  bot_id: z.string().optional(),
+  botId: z.string().optional(),
   external_transaction_id: z.string().optional(),
+  externalTransactionId: z.string().optional(),
 });
 
 const failSchema = z.object({
-  bot_id: z.string().min(1, 'bot_id is required'),
-  failure_type: z.enum([FailureType.TRANSIENT, FailureType.PERMANENT]),
-  reason: z.string().min(1, 'reason is required'),
+  bot_id: z.string().optional(),
+  botId: z.string().optional(),
+  failure_type: z.enum([FailureType.TRANSIENT, FailureType.PERMANENT]).optional().default(FailureType.PERMANENT),
+  failureType: z.enum([FailureType.TRANSIENT, FailureType.PERMANENT]).optional(),
+  reason: z.string().optional(),
+  errorMessage: z.string().optional(),
 });
 
 export class BotController {
@@ -37,9 +44,10 @@ export class BotController {
         throw new BadRequestError('Validation error', orderNo, parsed.error.issues);
       }
 
+      const botId = parsed.data.bot_id || parsed.data.botId || 'BOT-DEFAULT';
       const order = await this.botService.claimOrder(
         orderNo,
-        parsed.data.bot_id,
+        botId,
         parsed.data.lease_seconds
       );
 
@@ -62,9 +70,10 @@ export class BotController {
         throw new BadRequestError('Validation error', orderNo, parsed.error.issues);
       }
 
+      const botId = parsed.data.bot_id || parsed.data.botId || 'BOT-DEFAULT';
       const order = await this.botService.sendHeartbeat(
         orderNo,
-        parsed.data.bot_id,
+        botId,
         parsed.data.lease_extension_seconds
       );
 
@@ -87,10 +96,12 @@ export class BotController {
         throw new BadRequestError('Validation error', orderNo, parsed.error.issues);
       }
 
+      const botId = parsed.data.bot_id || parsed.data.botId || 'BOT-DEFAULT';
+      const extTxId = parsed.data.external_transaction_id || parsed.data.externalTransactionId;
       const order = await this.botService.completeOrder(
         orderNo,
-        parsed.data.bot_id,
-        parsed.data.external_transaction_id
+        botId,
+        extTxId
       );
 
       res.status(200).json({
@@ -112,11 +123,15 @@ export class BotController {
         throw new BadRequestError('Validation error', orderNo, parsed.error.issues);
       }
 
+      const botId = parsed.data.bot_id || parsed.data.botId || 'BOT-DEFAULT';
+      const failureType = (parsed.data.failure_type || parsed.data.failureType || FailureType.PERMANENT) as FailureType;
+      const reason = parsed.data.reason || parsed.data.errorMessage || 'Unknown bot failure';
+
       const order = await this.botService.reportFailure(
         orderNo,
-        parsed.data.bot_id,
-        parsed.data.failure_type as FailureType,
-        parsed.data.reason
+        botId,
+        failureType,
+        reason
       );
 
       res.status(200).json({

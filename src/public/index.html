@@ -9,10 +9,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-main: #0f172a;
-      --bg-card: #1e293b;
-      --bg-card-sub: #172033;
-      --border: #334155;
+      --bg-main: #0b0f19;
+      --bg-card: #151e32;
+      --bg-card-sub: #1b2640;
+      --border: #283754;
+      --border-light: #3b4e75;
       --text: #f8fafc;
       --text-muted: #94a3b8;
       --primary: #3b82f6;
@@ -21,6 +22,7 @@
       --warning: #f59e0b;
       --danger: #ef4444;
       --purple: #8b5cf6;
+      --info: #06b6d4;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -32,12 +34,14 @@
       flex-direction: column;
     }
     header {
-      background: #090d16;
+      background: #080c14;
       border-bottom: 1px solid var(--border);
-      padding: 14px 28px;
+      padding: 16px 28px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
     }
     .brand {
       display: flex;
@@ -45,11 +49,12 @@
       gap: 12px;
     }
     .brand-icon {
-      width: 36px; height: 36px;
+      width: 40px; height: 40px;
       background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-      border-radius: 8px;
+      border-radius: 10px;
       display: flex; align-items: center; justify-content: center;
-      font-weight: 700; color: white;
+      font-weight: 700; color: white; font-size: 1.1rem;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
     }
     .brand-title {
       font-size: 1.15rem; font-weight: 700;
@@ -57,216 +62,415 @@
     }
     .badge {
       font-size: 0.75rem; font-family: 'JetBrains Mono', monospace;
-      padding: 2px 8px; border-radius: 9999px;
+      padding: 3px 10px; border-radius: 9999px;
       background: rgba(16, 185, 129, 0.15); color: var(--success);
       border: 1px solid rgba(16, 185, 129, 0.3);
     }
+    .nav-links {
+      display: flex; gap: 8px; align-items: center;
+    }
+    .nav-link-btn {
+      background: #1e293b; color: #94a3b8; font-size: 0.8rem;
+      padding: 6px 12px; border-radius: 6px; text-decoration: none;
+      border: 1px solid var(--border); transition: 0.2s;
+    }
+    .nav-link-btn:hover { color: white; border-color: var(--primary); }
     main {
-      flex: 1; padding: 24px 28px; max-width: 1440px; margin: 0 auto; width: 100%;
+      flex: 1; padding: 24px 28px; max-width: 1480px; margin: 0 auto; width: 100%;
       display: flex; flex-direction: column; gap: 20px;
     }
     .grid-2 {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+      display: grid; grid-template-columns: 380px 1fr; gap: 20px;
     }
-    @media (max-width: 860px) { .grid-2 { grid-template-columns: 1fr; } }
+    @media (max-width: 1024px) { .grid-2 { grid-template-columns: 1fr; } }
     .card {
       background: var(--bg-card); border: 1px solid var(--border);
-      border-radius: 12px; padding: 20px;
-      display: flex; flex-direction: column; gap: 14px;
+      border-radius: 12px; padding: 22px;
+      display: flex; flex-direction: column; gap: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
     }
     .card-title {
       font-size: 1.05rem; font-weight: 600;
-      display: flex; align-items: center; gap: 8px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid var(--border); padding-bottom: 10px;
     }
     .btn {
       font-family: inherit; font-size: 0.85rem; font-weight: 500;
-      padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer;
+      padding: 8px 14px; border-radius: 6px; border: none; cursor: pointer;
       display: inline-flex; align-items: center; justify-content: center; gap: 6px;
       transition: all 0.2s;
     }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
     .btn-primary { background: var(--primary); color: white; }
-    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-primary:hover:not(:disabled) { background: var(--primary-hover); }
     .btn-success { background: var(--success); color: white; }
+    .btn-success:hover:not(:disabled) { filter: brightness(1.1); }
     .btn-warning { background: var(--warning); color: #000; font-weight: 600; }
+    .btn-warning:hover:not(:disabled) { filter: brightness(1.1); }
     .btn-danger { background: var(--danger); color: white; }
+    .btn-danger:hover:not(:disabled) { filter: brightness(1.1); }
+    .btn-info { background: var(--info); color: white; }
+    .btn-purple { background: var(--purple); color: white; }
     .btn-refresh { background: var(--bg-card-sub); color: white; border: 1px solid var(--border); }
-    .btn-sm { padding: 4px 10px; font-size: 0.78rem; }
-    .form-group { display: flex; flex-direction: column; gap: 4px; }
+    .btn-refresh:hover:not(:disabled) { background: #263554; }
+    .btn-sm { padding: 4px 8px; font-size: 0.75rem; border-radius: 4px; }
+    .btn-xs { padding: 3px 6px; font-size: 0.7rem; border-radius: 4px; }
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
     .form-group label { font-size: 0.8rem; color: var(--text-muted); }
     .form-control {
       background: var(--bg-card-sub); border: 1px solid var(--border);
       color: white; padding: 8px 12px; border-radius: 6px; font-family: inherit; font-size: 0.85rem;
     }
+    .form-control:focus { outline: none; border-color: var(--primary); }
     .tabs { display: flex; gap: 8px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
     .tab-btn {
-      background: transparent; border: none; color: var(--text-muted);
-      font-family: inherit; font-size: 0.85rem; font-weight: 600; padding: 6px 14px;
-      border-radius: 6px; cursor: pointer;
+      background: none; border: none; color: var(--text-muted);
+      font-family: inherit; font-size: 0.9rem; font-weight: 600;
+      padding: 6px 14px; border-radius: 6px; cursor: pointer; transition: 0.2s;
     }
     .tab-btn.active { background: var(--primary); color: white; }
-    table { width: 100%; border-collapse: collapse; font-size: 0.825rem; text-align: left; }
-    th { background: var(--bg-card-sub); color: var(--text-muted); padding: 10px; border-bottom: 1px solid var(--border); }
-    td { padding: 10px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-family: 'JetBrains Mono', monospace; }
-    .status-tag {
-      padding: 2px 7px; border-radius: 4px; font-size: 0.72rem; font-weight: 600; text-transform: uppercase;
+    .tab-btn:hover:not(.active) { color: white; background: var(--bg-card-sub); }
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    th {
+      text-align: left; padding: 10px 12px; color: var(--text-muted);
+      font-weight: 600; border-bottom: 1px solid var(--border);
+      background: rgba(0,0,0,0.1);
     }
-    .status-pending_payment { background: rgba(148, 163, 184, 0.2); color: #cbd5e1; }
-    .status-queued { background: rgba(59, 130, 246, 0.2); color: #93c5fd; }
-    .status-in_progress { background: rgba(245, 158, 11, 0.2); color: #fcd34d; }
-    .status-completed { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; }
-    .status-failed { background: rgba(239, 68, 68, 0.2); color: #fca5a5; }
-    .status-delayed { background: rgba(168, 85, 247, 0.2); color: #d8b4fe; }
-    .status-refunded { background: rgba(236, 72, 153, 0.2); color: #f472b6; }
-    .case-badge {
-      display: inline-block; background: rgba(245, 158, 11, 0.15); color: #fbbf24;
-      padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; border: 1px solid rgba(245, 158, 11, 0.3);
+    td { padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); vertical-align: middle; }
+    tr:hover { background: rgba(255,255,255,0.02); }
+    .status-badge {
+      font-size: 0.72rem; font-family: 'JetBrains Mono', monospace; font-weight: 700;
+      padding: 3px 8px; border-radius: 9999px; display: inline-block;
     }
+    .status-pending_payment { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .status-queued { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+    .status-in_progress { background: rgba(139, 92, 246, 0.15); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.3); }
+    .status-completed { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .status-failed { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+    .status-delayed { background: rgba(234, 88, 12, 0.15); color: #fb923c; border: 1px solid rgba(234, 88, 12, 0.3); }
+    .status-refunded { background: rgba(148, 163, 184, 0.15); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.3); }
+    .status-expired { background: rgba(100, 116, 139, 0.15); color: #94a3b8; border: 1px solid rgba(100, 116, 139, 0.3); }
+
+    .action-group { display: flex; flex-wrap: wrap; gap: 4px; }
+    .case-scenarios {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px;
+    }
+    .scenario-card {
+      background: var(--bg-card-sub); border: 1px solid var(--border);
+      border-radius: 8px; padding: 14px; display: flex; flex-direction: column;
+      justify-content: space-between; gap: 10px; transition: 0.2s;
+    }
+    .scenario-card:hover { border-color: var(--primary); }
+    .scenario-title { font-size: 0.88rem; font-weight: 600; color: white; display: flex; align-items: center; gap: 6px; }
+    .scenario-desc { font-size: 0.76rem; color: var(--text-muted); line-height: 1.4; }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+      display: none; align-items: center; justify-content: center; z-index: 1000;
+    }
+    .modal-box {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
+      width: 90%; max-width: 650px; max-height: 85vh; display: flex; flex-direction: column;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5); overflow: hidden;
+    }
+    .modal-header {
+      padding: 16px 20px; border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .modal-body { padding: 20px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 14px; }
+    .timeline-item {
+      display: flex; gap: 12px; position: relative; padding-bottom: 16px;
+      border-left: 2px solid var(--border-light); margin-left: 10px; padding-left: 16px;
+    }
+    .timeline-item:last-child { border-left-color: transparent; }
+    .timeline-dot {
+      position: absolute; left: -22px; top: 0; width: 12px; height: 12px;
+      border-radius: 50%; background: var(--primary); border: 2px solid var(--bg-card);
+    }
+    .timeline-content { display: flex; flex-direction: column; gap: 2px; }
+    .timeline-action { font-size: 0.85rem; font-weight: 600; color: white; }
+    .timeline-time { font-size: 0.72rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+    .timeline-desc { font-size: 0.78rem; color: #cbd5e1; margin-top: 3px; }
+
+    /* Toast */
+    #toast-container {
+      position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column;
+      gap: 10px; z-index: 9999; max-width: 380px;
+    }
+    .toast {
+      background: #1e293b; border-left: 4px solid var(--primary);
+      color: white; padding: 12px 16px; border-radius: 6px; font-size: 0.85rem;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4); animation: slideIn 0.3s ease-out;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .toast-success { border-left-color: var(--success); }
+    .toast-error { border-left-color: var(--danger); }
+    .toast-warning { border-left-color: var(--warning); }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
   </style>
 </head>
 <body>
   <header>
     <div class="brand">
-      <div class="brand-icon">IN</div>
-      <div class="brand-title">
-        Order Tracking & Problem Cases Engine (โจทย์ A)
-        <span class="badge">API & DASHBOARD LIVE</span>
+      <div class="brand-icon">A</div>
+      <div>
+        <div class="brand-title">
+          <span>Order Tracking & Bot Monitoring API</span>
+          <span class="badge">LIVE DEMO</span>
+        </div>
+        <div style="font-size:0.75rem; color:var(--text-muted);">แบบทดสอบทางเทคนิค A - การจัดการเคสปัญหาและวงจรออเดอร์เติมเกม</div>
       </div>
     </div>
-    <a href="/health" target="_blank" class="btn btn-sm btn-refresh" style="text-decoration:none;">Health Check API</a>
+    <div class="nav-links">
+      <span style="font-size: 0.78rem; color: var(--text-muted); margin-right: 8px;">Ports:</span>
+      <a href="http://localhost:3000/demo" class="nav-link-btn" style="border-color:var(--primary); color:white;">A: Order Tracking (:3000)</a>
+      <a href="http://localhost:3001" target="_blank" class="nav-link-btn">B: Aniimo (:3001)</a>
+      <a href="http://localhost:3002" target="_blank" class="nav-link-btn">C: Oxide (:3002)</a>
+      <a href="http://localhost:3003" target="_blank" class="nav-link-btn">D: AOEM (:3003)</a>
+    </div>
   </header>
 
   <main>
-    <div class="grid-2">
-      <!-- Create Order & Simulation Card -->
-      <div class="card">
-        <h2 class="card-title">🛒 1. สร้างออเดอร์ใหม่ (Create Order)</h2>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-          <div class="form-group">
-            <label>เกม (Game)</label>
-            <input type="text" id="game-code" class="form-control" value="ROV" />
-          </div>
-          <div class="form-group">
-            <label>แพ็กเกจ (Item)</label>
-            <input type="text" id="item-name" class="form-control" value="1,000 คูปอง" />
-          </div>
-        </div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-          <div class="form-group">
-            <label>Player UID</label>
-            <input type="text" id="player-uid" class="form-control" value="UID-998877" />
-          </div>
-          <div class="form-group">
-            <label>Server</label>
-            <input type="text" id="player-server" class="form-control" value="Asia-1" />
-          </div>
-        </div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-          <div class="form-group">
-            <label>ยอดเงิน (THB)</label>
-            <input type="number" id="order-price" class="form-control" value="350" />
-          </div>
-          <div class="form-group">
-            <label>Customer Email</label>
-            <input type="text" id="customer-email" class="form-control" value="customer@example.com" />
-          </div>
-        </div>
-        <button class="btn btn-primary" onclick="createOrder()">+ สร้างออเดอร์ (Pending Payment)</button>
+    <!-- Scenarios Showcase -->
+    <div class="card" style="padding: 16px 20px;">
+      <div class="card-title">
+        <span>⚡ ปุ่มจำลองสถานการณ์ 5 เคสสำคัญ (One-Click Scenario Testing)</span>
+        <button class="btn btn-refresh btn-xs" onclick="triggerRecovery()">⚙️ รัน Recover Bot ค้าง</button>
       </div>
+      <div class="case-scenarios">
+        <div class="scenario-card">
+          <div>
+            <div class="scenario-title">1. UID ผิดพลาด (Invalid UID)</div>
+            <div class="scenario-desc">จำลองบอทแจ้ง UID ผิด (FAILED) ลูกค้าได้รับแจ้งเตือน และกดปุ่มแก้ UID ส่งคิวใหม่ได้ทันที</div>
+          </div>
+          <button class="btn btn-warning btn-sm" onclick="runScenario('case1')">ทดสอบเคส 1</button>
+        </div>
 
-      <!-- Problem Cases Quick Simulation Card -->
-      <div class="card">
-        <h2 class="card-title">🧪 2. ทดสอบจำลอง 5 เคสปัญหา (5 Problem Cases)</h2>
-        <p style="font-size:0.8rem; color:var(--text-muted);">
-          ทดสอบความสามารถของระบบในการจัดการกับ 5 สถานการณ์ที่มักพบในการเติมเงินเกมอัตโนมัติ:
-        </p>
-        <div style="display:flex; flex-direction:column; gap:8px;">
-          <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-card-sub); padding:8px 12px; border-radius:6px;">
-            <div><span class="case-badge">เคส 1</span> กรอก UID ผิด (ลูกค้าแจ้งแก้ไขเป้าหมาย)</div>
-            <button class="btn btn-sm btn-warning" onclick="simulateCase('case1')">ทดสอบ</button>
+        <div class="scenario-card">
+          <div>
+            <div class="scenario-title">2. Transient Error (เซิร์ฟเวอร์หลุด)</div>
+            <div class="scenario-desc">บอทพบปัญหาชั่วคราว (Provider 503 / Network) ระบบส่งกลับคิว QUEUED พร้อม Exponential Backoff</div>
           </div>
-          <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-card-sub); padding:8px 12px; border-radius:6px;">
-            <div><span class="case-badge">เคส 2</span> เกมปิดปรับปรุงเซิร์ฟเวอร์ (Server Maintenance)</div>
-            <button class="btn btn-sm btn-warning" onclick="simulateCase('case2')">ทดสอบ</button>
+          <button class="btn btn-purple btn-sm" onclick="runScenario('case2')">ทดสอบเคส 2</button>
+        </div>
+
+        <div class="scenario-card">
+          <div>
+            <div class="scenario-title">3. Bot ดับ/ค้าง (Lease Expiry)</div>
+            <div class="scenario-desc">บอทรับงานแล้ว Crash ไม่ส่ง Heartbeat ระบบตรวจพบ Lease ขาด ดึงงานกลับคิวให้อัตโนมัติ</div>
           </div>
-          <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-card-sub); padding:8px 12px; border-radius:6px;">
-            <div><span class="case-badge">เคส 3</span> บอทค้าง / หลุดการเชื่อมต่อ (Auto Recovery)</div>
-            <button class="btn btn-sm btn-warning" onclick="simulateCase('case3')">ทดสอบ</button>
+          <button class="btn btn-info btn-sm" onclick="runScenario('case3')">ทดสอบเคส 3</button>
+        </div>
+
+        <div class="scenario-card">
+          <div>
+            <div class="scenario-title">4. จ่ายเงินไม่ครบ (Underpayment)</div>
+            <div class="scenario-desc">ยอดออเดอร์ 200 แต่โอนมา 150 บาท Webhook แจ้งเตือนยอดขาด และระงับคิวไว้รอชำระเพิ่ม</div>
           </div>
-          <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-card-sub); padding:8px 12px; border-radius:6px;">
-            <div><span class="case-badge">เคส 4</span> สลิปโอนเงินไม่ตรงยอด (Under-payment)</div>
-            <button class="btn btn-sm btn-warning" onclick="simulateCase('case4')">ทดสอบ</button>
+          <button class="btn btn-danger btn-sm" onclick="runScenario('case4')">ทดสอบเคส 4</button>
+        </div>
+
+        <div class="scenario-card">
+          <div>
+            <div class="scenario-title">5. สินค้าหมด / คืนเงิน (Auto Refund)</div>
+            <div class="scenario-desc">แพ็กเกจหมดกะทันหัน หรือลูกค้ายกเลิก ระบบตัดเงินคืนเข้าวอลเล็ต ปรับสถานะเป็น REFUNDED</div>
           </div>
-          <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-card-sub); padding:8px 12px; border-radius:6px;">
-            <div><span class="case-badge">เคส 5</span> สินค้าหมดกะทันหัน (Out of Stock & Refund)</div>
-            <button class="btn btn-sm btn-danger" onclick="simulateCase('case5')">ทดสอบ</button>
-          </div>
+          <button class="btn btn-refresh btn-sm" onclick="runScenario('case5')">ทดสอบเคส 5</button>
         </div>
       </div>
     </div>
 
-    <!-- Orders Table Card -->
-    <div class="card">
-      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <div class="tabs">
-          <button class="tab-btn active" id="tab-current" onclick="switchTab('current')">ออเดอร์ปัจจุบัน (Current)</button>
-          <button class="tab-btn" id="tab-history" onclick="switchTab('history')">ประวัติออเดอร์ (History)</button>
+    <!-- Main Section: Form & Table -->
+    <div class="grid-2">
+      <!-- Create Order Form -->
+      <div class="card">
+        <div class="card-title">
+          <span>➕ สร้างออเดอร์ใหม่ (New Order)</span>
         </div>
-        <button class="btn btn-sm btn-refresh" onclick="loadOrders()">รีเฟรชข้อมูล</button>
+        <form id="create-order-form" onsubmit="event.preventDefault(); submitCreateOrder();">
+          <div class="form-group">
+            <label>เกม (Game)</label>
+            <select id="game_id" class="form-control">
+              <option value="ROV">ROV (Arena of Valor)</option>
+              <option value="FREE_FIRE">Free Fire</option>
+              <option value="GENSHIN">Genshin Impact</option>
+              <option value="VALORANT">Valorant</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-top: 10px;">
+            <label>แพ็กเกจสินค้า (Package)</label>
+            <input type="text" id="package_id" class="form-control" value="คูปอง 510 คูปอง" required>
+          </div>
+          <div class="form-group" style="margin-top: 10px;">
+            <label>Player UID</label>
+            <input type="text" id="uid" class="form-control" value="UID-883921" required>
+          </div>
+          <div class="form-group" style="margin-top: 10px;">
+            <label>เซิร์ฟเวอร์ (Server ID)</label>
+            <input type="text" id="server_id" class="form-control" value="TH-1">
+          </div>
+          <div class="form-group" style="margin-top: 10px;">
+            <label>ยอดชำระ (บาท)</label>
+            <input type="number" id="amount" class="form-control" value="150" min="1" step="0.01" required>
+          </div>
+          <div class="form-group" style="margin-top: 10px;">
+            <label>รหัสลูกค้า (Customer ID)</label>
+            <input type="text" id="customer_id" class="form-control" value="CUST-007">
+          </div>
+          <button type="submit" id="btn-create" class="btn btn-primary" style="margin-top: 14px; width: 100%;">
+            🚀 สร้างออเดอร์ (สถานะเริ่มต้น: PENDING_PAYMENT)
+          </button>
+        </form>
       </div>
 
-      <div style="overflow-x:auto;">
-        <table>
-          <thead>
-            <tr>
-              <th>Order No</th>
-              <th>เกม & สินค้า</th>
-              <th>เป้าหมาย (UID / Server)</th>
-              <th>ยอดเงิน</th>
-              <th>สถานะ (Status)</th>
-              <th>ปัญหาที่บันทึก</th>
-              <th>ดำเนินการ (Actions)</th>
-            </tr>
-          </thead>
-          <tbody id="orders-tbody">
-            <tr><td colspan="7" style="text-align:center; color:var(--text-muted);">กำลังโหลดรายการออเดอร์...</td></tr>
-          </tbody>
-        </table>
+      <!-- Order List Table -->
+      <div class="card">
+        <div class="card-title">
+          <div class="tabs" style="border:none; padding:0;">
+            <button class="tab-btn active" id="tab-current" onclick="switchTab('current')">🔄 คิวปัจจุบัน (Current)</button>
+            <button class="tab-btn" id="tab-history" onclick="switchTab('history')">📜 ประวัติที่เสร็จสิ้น (History)</button>
+          </div>
+          <button class="btn btn-refresh btn-sm" onclick="loadOrders()">🔄 รีเฟรช</button>
+        </div>
+
+        <div style="overflow-x: auto; min-height: 280px;">
+          <table>
+            <thead>
+              <tr>
+                <th>Order No</th>
+                <th>เกม / แพ็กเกจ</th>
+                <th>UID / Server</th>
+                <th>ยอดเงิน</th>
+                <th>สถานะ</th>
+                <th>บอท / รายละเอียด</th>
+                <th>การทำงาน (Actions)</th>
+              </tr>
+            </thead>
+            <tbody id="orders-tbody">
+              <tr>
+                <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 40px 0;">กำลังโหลดข้อมูล...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </main>
 
+  <!-- Timeline Modal -->
+  <div class="modal-backdrop" id="timeline-modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div>
+          <h3 style="font-size: 1.05rem;" id="modal-title">Timeline ประวัติออเดอร์</h3>
+          <span style="font-size: 0.75rem; color: var(--text-muted);" id="modal-subtitle"></span>
+        </div>
+        <button class="btn btn-refresh btn-xs" onclick="closeTimelineModal()">✕ ปิด</button>
+      </div>
+      <div class="modal-body" id="modal-timeline-body">
+        <!-- Timelines rendered here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast notifications -->
+  <div id="toast-container"></div>
+
   <script>
     let currentTab = 'current';
 
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+      toast.innerHTML = `<span>${message}</span>`;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(100%)';
+        toast.style.transition = '0.3s';
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
     async function loadOrders() {
       try {
-        const res = await fetch(`/orders?tab=${currentTab}&limit=20`);
+        const res = await fetch(`/orders?tab=${currentTab}&limit=50`);
         const json = await res.json();
         const tbody = document.getElementById('orders-tbody');
-        if (json.success && Array.isArray(json.data)) {
-          if (json.data.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:var(--text-muted);">ไม่มีรายการในแท็บนี้</td></tr>';
-            return;
-          }
-          tbody.innerHTML = json.data.map(o => `
-            <tr>
-              <td><strong>${o.orderNo}</strong></td>
-              <td>${o.gameCode || '-'}<br><span style="color:#64748b;font-size:0.75rem;">${o.itemName || ''}</span></td>
-              <td>${o.targetUid || '-'}<br><span style="color:#64748b;font-size:0.75rem;">${o.targetServer || ''}</span></td>
-              <td>${o.price} ${o.currency || 'THB'}</td>
-              <td><span class="status-tag status-${o.status.toLowerCase()}">${o.status}</span></td>
-              <td>${o.reportedIssue ? `<span class="case-badge">${o.reportedIssue}</span>` : '-'}</td>
-              <td>
-                ${o.status === 'PENDING_PAYMENT' ? `<button class="btn btn-sm btn-success" onclick="simulatePay('${o.orderNo}', ${o.price})">จำลองจ่ายเงิน</button>` : ''}
-                ${o.status === 'QUEUED' ? `<button class="btn btn-sm btn-primary" onclick="botClaim('${o.orderNo}')">บอทรับงาน</button>` : ''}
-                ${o.status === 'IN_PROGRESS' ? `<button class="btn btn-sm btn-success" onclick="botComplete('${o.orderNo}')">บอทจบงาน</button>` : ''}
-                ${o.status === 'DELAYED' ? `<button class="btn btn-sm btn-warning" onclick="editTarget('${o.orderNo}')">แก้ UID</button>` : ''}
-              </td>
-            </tr>
-          `).join('');
+        
+        if (!json.success || !Array.isArray(json.data)) {
+          tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:var(--danger);">ไม่สามารถโหลดข้อมูลได้</td></tr>';
+          return;
         }
+
+        if (json.data.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding:30px 0;">ไม่มีรายการในแท็บ ${currentTab === 'current' ? 'คิวปัจจุบัน' : 'ประวัติที่เสร็จสิ้น'}</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = json.data.map(o => {
+          const orderNo = o.order_no || o.orderNo;
+          const gameId = o.game_id || o.gameCode || '-';
+          const packageId = o.package_id || o.itemName || '-';
+          const uid = o.uid || o.targetUid || '-';
+          const serverId = o.server_id || o.targetServer || '-';
+          const amount = parseFloat(o.amount || o.price || 0).toFixed(2);
+          const status = (o.status || 'UNKNOWN').toUpperCase();
+          const botId = o.assigned_bot_id || '-';
+          const reason = o.failure_reason ? `<div style="color:#f87171;font-size:0.72rem;margin-top:2px;">${escapeHtml(o.failure_reason)}</div>` : '';
+          const retries = (o.retry_count > 0) ? `<span style="font-size:0.7rem;color:#f59e0b;">(Retry ${o.retry_count}/${o.max_retries || 3})</span>` : '';
+
+          let actionsHtml = `<div class="action-group">`;
+          
+          if (status === 'PENDING_PAYMENT') {
+            actionsHtml += `
+              <button class="btn btn-xs btn-success" onclick="simulatePayment('${orderNo}', ${amount})">💳 จ่ายเงินเต็ม (${amount}บ.)</button>
+              <button class="btn btn-xs btn-warning" onclick="simulateUnderpayment('${orderNo}', ${amount})">⚠️ จ่ายขาด (-50บ.)</button>
+            `;
+          } else if (status === 'QUEUED') {
+            actionsHtml += `
+              <button class="btn btn-xs btn-primary" onclick="botClaimOrder('${orderNo}')">🤖 บอทรับงาน</button>
+              <button class="btn btn-xs btn-danger" onclick="refundOrder('${orderNo}')">💸 คืนเงิน</button>
+            `;
+          } else if (status === 'IN_PROGRESS') {
+            actionsHtml += `
+              <button class="btn btn-xs btn-success" onclick="botCompleteOrder('${orderNo}')">✅ บอททำเสร็จ</button>
+              <button class="btn btn-xs btn-purple" onclick="botTransientFail('${orderNo}')">⚠️ ลองใหม่ (Retry)</button>
+              <button class="btn btn-xs btn-danger" onclick="botPermanentFail('${orderNo}')">❌ บอทแจ้ง UID ผิด</button>
+            `;
+          } else if (status === 'DELAYED' || status === 'FAILED') {
+            actionsHtml += `
+              <button class="btn btn-xs btn-warning" onclick="promptUpdateUid('${orderNo}', '${escapeHtml(uid)}')">✏️ แก้ UID</button>
+              <button class="btn btn-xs btn-danger" onclick="refundOrder('${orderNo}')">💸 คืนเงิน</button>
+            `;
+          }
+
+          // Timeline button for all
+          actionsHtml += `
+            <button class="btn btn-xs btn-refresh" onclick="viewTimeline('${orderNo}')">📜 Timeline</button>
+            <button class="btn btn-xs btn-refresh" onclick="promptReportIssue('${orderNo}')">🚩 แจ้งปัญหา</button>
+          </div>`;
+
+          return `
+            <tr>
+              <td><strong style="font-family:'JetBrains Mono',monospace;color:#93c5fd;">${orderNo}</strong></td>
+              <td><strong>${escapeHtml(gameId)}</strong><br><span style="color:var(--text-muted);font-size:0.75rem;">${escapeHtml(packageId)}</span></td>
+              <td><span style="font-family:'JetBrains Mono';font-size:0.8rem;">${escapeHtml(uid)}</span><br><span style="color:var(--text-muted);font-size:0.72rem;">${escapeHtml(serverId)}</span></td>
+              <td><strong style="color:#34d399;">${amount} ฿</strong></td>
+              <td><span class="status-badge status-${status.toLowerCase()}">${status}</span></td>
+              <td>
+                <span style="font-family:'JetBrains Mono';font-size:0.75rem;color:#cbd5e1;">${botId}</span> ${retries}
+                ${reason}
+              </td>
+              <td>${actionsHtml}</td>
+            </tr>
+          `;
+        }).join('');
       } catch (err) {
         console.error(err);
+        showToast('เกิดข้อผิดพลาดในการโหลดรายการออเดอร์', 'error');
       }
     }
 
@@ -277,16 +481,25 @@
       loadOrders();
     }
 
-    async function createOrder() {
+    function escapeHtml(text) {
+      if (!text) return '';
+      return String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    // CREATE ORDER
+    async function submitCreateOrder() {
+      const btn = document.getElementById('btn-create');
+      btn.disabled = true;
       try {
         const payload = {
-          gameCode: document.getElementById('game-code').value,
-          itemName: document.getElementById('item-name').value,
-          targetUid: document.getElementById('player-uid').value,
-          targetServer: document.getElementById('player-server').value,
-          price: parseFloat(document.getElementById('order-price').value) || 100,
-          customerEmail: document.getElementById('customer-email').value
+          game_id: document.getElementById('game_id').value,
+          package_id: document.getElementById('package_id').value,
+          uid: document.getElementById('uid').value,
+          server_id: document.getElementById('server_id').value,
+          amount: parseFloat(document.getElementById('amount').value),
+          customer_id: document.getElementById('customer_id').value || 'CUST-001'
         };
+
         const res = await fetch('/orders', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -294,130 +507,368 @@
         });
         const json = await res.json();
         if (json.success) {
-          alert(`สร้างออเดอร์ ${json.data.orderNo} สำเร็จ!`);
+          const orderNo = json.data.order_no || json.data.orderNo;
+          showToast(`สร้างออเดอร์ ${orderNo} สำเร็จ! สถานะ PENDING_PAYMENT`, 'success');
           loadOrders();
         } else {
-          alert('ผิดพลาด: ' + (json.error?.message || ''));
+          showToast(`สร้างออเดอร์ไม่สำเร็จ: ${json.error?.message || 'Invalid input'}`, 'error');
         }
-      } catch (err) { alert('เกิดข้อผิดพลาด'); }
+      } catch (err) {
+        showToast('เกิดข้อผิดพลาดในการติดต่อ Server', 'error');
+      } finally {
+        btn.disabled = false;
+      }
     }
 
-    async function simulatePay(orderNo, amount) {
+    // SIMULATE PAYMENT (WEBHOOK)
+    async function simulatePayment(orderNo, amount) {
       try {
         const res = await fetch('/webhooks/bank', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            event: 'PAYMENT_RECEIVED',
+            eventId: 'EVT-' + Date.now(),
             orderNo: orderNo,
-            amount: amount,
-            transRef: 'TX-' + Math.floor(100000 + Math.random()*900000)
+            amount: parseFloat(amount),
+            paymentStatus: 'SUCCESS',
+            transactionTime: new Date().toISOString()
           })
         });
         const json = await res.json();
         if (json.success) {
-          alert(`จำลองการโอนเงินสำเร็จ! ออเดอร์ ${orderNo} ย้ายเข้าคิว QUEUED`);
+          showToast(`จำลองการโอนเงิน ${amount} บาทสำเร็จ! ออเดอร์ ${orderNo} ย้ายเข้าคิว QUEUED`, 'success');
           loadOrders();
+        } else {
+          showToast(`ชำระเงินไม่สำเร็จ: ${json.error?.message || 'Error'}`, 'error');
         }
-      } catch (err) { alert('ส่ง Webhook ไม่สำเร็จ'); }
+      } catch (err) {
+        showToast('ส่ง Webhook ไม่สำเร็จ', 'error');
+      }
     }
 
-    async function botClaim(orderNo) {
+    // SIMULATE UNDERPAYMENT
+    async function simulateUnderpayment(orderNo, fullAmount) {
+      const underAmount = Math.max(1, parseFloat(fullAmount) - 50);
+      try {
+        const res = await fetch('/webhooks/bank', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            eventId: 'EVT-UNDER-' + Date.now(),
+            orderNo: orderNo,
+            amount: underAmount,
+            paymentStatus: 'SUCCESS',
+            transactionTime: new Date().toISOString()
+          })
+        });
+        const json = await res.json();
+        if (json.success) {
+          showToast(`จำลองการโอนเงินไม่ครบ (${underAmount}/${fullAmount} บ.)! ออเดอร์ ${orderNo} ย้ายไป DELAYED`, 'warning');
+          loadOrders();
+        } else {
+          showToast(`เกิดข้อผิดพลาด: ${json.error?.message}`, 'error');
+        }
+      } catch (err) {
+        showToast('ส่ง Webhook ไม่สำเร็จ', 'error');
+      }
+    }
+
+    // BOT CLAIM
+    async function botClaimOrder(orderNo) {
       try {
         const res = await fetch(`/bots/orders/${orderNo}/claim`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ botId: 'BOT-NODE-01' })
+          body: JSON.stringify({ bot_id: 'BOT-NODE-01', lease_seconds: 60 })
         });
         const json = await res.json();
         if (json.success) {
-          alert(`บอท BOT-NODE-01 รับงาน ${orderNo} เรียบร้อย!`);
+          showToast(`บอท BOT-NODE-01 รับงาน ${orderNo} สำเร็จ (IN_PROGRESS)`, 'success');
           loadOrders();
+        } else {
+          showToast(`บอทรับงานไม่สำเร็จ: ${json.error?.message}`, 'error');
         }
-      } catch (err) { alert('เกิดข้อผิดพลาด'); }
+      } catch (err) {
+        showToast('เชื่อมต่อล้มเหลว', 'error');
+      }
     }
 
-    async function botComplete(orderNo) {
+    // BOT COMPLETE
+    async function botCompleteOrder(orderNo) {
       try {
         const res = await fetch(`/bots/orders/${orderNo}/complete`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ botId: 'BOT-NODE-01', result: { tx: 'SUCCESS_CONFIRMED' } })
+          body: JSON.stringify({
+            bot_id: 'BOT-NODE-01',
+            external_transaction_id: 'TX-CONFIRMED-' + Math.floor(100000 + Math.random()*900000)
+          })
         });
         const json = await res.json();
         if (json.success) {
-          alert(`บอททำรายการสำเร็จ! ออเดอร์ ${orderNo} ย้ายไป COMPLETED`);
+          showToast(`บอทเติมเกมให้ออเดอร์ ${orderNo} สำเร็จ! ย้ายไป COMPLETED`, 'success');
           loadOrders();
+        } else {
+          showToast(`เกิดข้อผิดพลาด: ${json.error?.message}`, 'error');
         }
-      } catch (err) { alert('เกิดข้อผิดพลาด'); }
+      } catch (err) {
+        showToast('เชื่อมต่อล้มเหลว', 'error');
+      }
     }
 
-    async function editTarget(orderNo) {
-      const newUid = prompt('กรอก Player UID ใหม่ที่ถูกต้อง:');
-      if (!newUid) return;
+    // BOT TRANSIENT FAIL
+    async function botTransientFail(orderNo) {
+      try {
+        const res = await fetch(`/bots/orders/${orderNo}/fail`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            bot_id: 'BOT-NODE-01',
+            failure_type: 'TRANSIENT',
+            reason: 'Game provider API gateway timeout (504 Gateway Timeout)'
+          })
+        });
+        const json = await res.json();
+        if (json.success) {
+          showToast(`แจ้ง Transient Error สำเร็จ! ออเดอร์ ${orderNo} ถูกส่งกลับคิว QUEUED พร้อมนับ Retry`, 'warning');
+          loadOrders();
+        } else {
+          showToast(`เกิดข้อผิดพลาด: ${json.error?.message}`, 'error');
+        }
+      } catch (err) {
+        showToast('เชื่อมต่อล้มเหลว', 'error');
+      }
+    }
+
+    // BOT PERMANENT FAIL
+    async function botPermanentFail(orderNo) {
+      try {
+        const res = await fetch(`/bots/orders/${orderNo}/fail`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            bot_id: 'BOT-NODE-01',
+            failure_type: 'PERMANENT',
+            reason: 'Player UID not found on target server'
+          })
+        });
+        const json = await res.json();
+        if (json.success) {
+          showToast(`แจ้ง Permanent Fail สำเร็จ! ออเดอร์ ${orderNo} ติดสถานะ FAILED รอแก้ไข UID`, 'error');
+          loadOrders();
+        } else {
+          showToast(`เกิดข้อผิดพลาด: ${json.error?.message}`, 'error');
+        }
+      } catch (err) {
+        showToast('เชื่อมต่อล้มเหลว', 'error');
+      }
+    }
+
+    // PROMPT UPDATE UID
+    async function promptUpdateUid(orderNo, currentUid) {
+      const newUid = prompt(`กรอก Player UID ใหม่สำหรับออเดอร์ ${orderNo}:`, currentUid || '');
+      if (!newUid || newUid.trim() === '') return;
       try {
         const res = await fetch(`/orders/${orderNo}/update-target`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ targetUid: newUid })
+          body: JSON.stringify({ uid: newUid.trim() })
         });
         const json = await res.json();
         if (json.success) {
-          alert('อัปเดต UID สำเร็จ! ออเดอร์ถูกนำกลับเข้าคิว QUEUED เพื่อให้บอทเริ่มทำรายการใหม่');
+          showToast(`อัปเดต UID เป็น '${newUid}' สำเร็จ! ออเดอร์ถูกส่งกลับเข้าคิว QUEUED เรียบร้อย`, 'success');
           loadOrders();
+        } else {
+          showToast(`แก้ไขไม่สำเร็จ: ${json.error?.message}`, 'error');
         }
-      } catch (err) { alert('เกิดข้อผิดพลาด'); }
+      } catch (err) {
+        showToast('เชื่อมต่อล้มเหลว', 'error');
+      }
     }
 
-    async function simulateCase(caseType) {
+    // REFUND ORDER
+    async function refundOrder(orderNo) {
+      const reason = prompt(`ระบุเหตุผลการคืนเงินสำหรับออเดอร์ ${orderNo}:`, 'สินค้าหมด หรือลูกค้ายกเลิกคำสั่งซื้อ');
+      if (!reason) return;
+      try {
+        const res = await fetch(`/orders/${orderNo}/refund`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ reason })
+        });
+        const json = await res.json();
+        if (json.success) {
+          showToast(`ดำเนินการคืนเงินให้ออเดอร์ ${orderNo} สำเร็จ! (สถานะ REFUNDED)`, 'success');
+          loadOrders();
+        } else {
+          showToast(`คืนเงินไม่สำเร็จ: ${json.error?.message}`, 'error');
+        }
+      } catch (err) {
+        showToast('เชื่อมต่อล้มเหลว', 'error');
+      }
+    }
+
+    // REPORT ISSUE
+    async function promptReportIssue(orderNo) {
+      const category = prompt(`ระบุหมวดหมู่ปัญหา (เช่น WRONG_UID, GAME_UPDATE, ACCOUNT_LOCKED):`, 'GAME_UPDATE');
+      if (!category) return;
+      const details = prompt(`ระบุรายละเอียดปัญหา:`, 'เซิร์ฟเวอร์เกมปิดปรับปรุงกะทันหัน');
+      if (!details) return;
+
+      try {
+        const res = await fetch(`/orders/${orderNo}/report-issue`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ category, details, reported_by: 'CUSTOMER' })
+        });
+        const json = await res.json();
+        if (json.success) {
+          showToast(`บันทึกการแจ้งปัญหาสำเร็จ! ออเดอร์ ${orderNo} ย้ายไปสถานะ DELAYED`, 'warning');
+          loadOrders();
+        } else {
+          showToast(`แจ้งปัญหาไม่สำเร็จ: ${json.error?.message}`, 'error');
+        }
+      } catch (err) {
+        showToast('เชื่อมต่อล้มเหลว', 'error');
+      }
+    }
+
+    // VIEW TIMELINE
+    async function viewTimeline(orderNo) {
+      const modal = document.getElementById('timeline-modal');
+      const title = document.getElementById('modal-title');
+      const subtitle = document.getElementById('modal-subtitle');
+      const body = document.getElementById('modal-timeline-body');
+
+      title.innerText = `Timeline ประวัติ: ${orderNo}`;
+      subtitle.innerText = 'โหลดข้อมูล Audit Log...';
+      body.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);">กำลังดึงประวัติ...</div>';
+      modal.style.display = 'flex';
+
+      try {
+        const res = await fetch(`/orders/${orderNo}/timeline`);
+        const json = await res.json();
+        if (json.success && Array.isArray(json.data)) {
+          subtitle.innerText = `มีทั้งหมด ${json.data.length} เหตุการณ์`;
+          if (json.data.length === 0) {
+            body.innerHTML = '<div style="text-align:center;color:var(--text-muted);">ยังไม่มีบันทึก Timeline</div>';
+            return;
+          }
+          body.innerHTML = json.data.map(item => {
+            const timeStr = new Date(item.created_at).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            return `
+              <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                  <div class="timeline-action">
+                    <span>${escapeHtml(item.action)}</span>
+                    <span style="font-size:0.75rem;color:var(--primary);margin-left:6px;">[${item.from_status || 'START'} ➜ ${item.to_status}]</span>
+                  </div>
+                  <div class="timeline-time">${timeStr} | โดย: ${escapeHtml(item.actor_type)} (${escapeHtml(item.actor_id || '-')})</div>
+                  <div class="timeline-desc">${escapeHtml(item.reason || '-')}</div>
+                </div>
+              </div>
+            `;
+          }).join('');
+        } else {
+          body.innerHTML = '<div style="color:var(--danger);">ไม่พบข้อมูล Timeline</div>';
+        }
+      } catch (err) {
+        body.innerHTML = '<div style="color:var(--danger);">เกิดข้อผิดพลาดในการโหลด Timeline</div>';
+      }
+    }
+
+    function closeTimelineModal() {
+      document.getElementById('timeline-modal').style.display = 'none';
+    }
+
+    // TRIGGER RECOVERY JOB
+    async function triggerRecovery() {
+      try {
+        const res = await fetch('/admin/jobs/trigger-recovery', { method: 'POST' });
+        const json = await res.json();
+        if (json.success) {
+          showToast(`รัน Recovery Job สำเร็จ! ปลดปล่อยออเดอร์บอทที่ Lease ขาดแล้ว ${json.data?.recoveredCount || 0} รายการ`, 'info');
+          loadOrders();
+        } else {
+          showToast('ไม่สามารถรัน Recovery Job ได้', 'error');
+        }
+      } catch (err) {
+        showToast('เชื่อมต่อล้มเหลว', 'error');
+      }
+    }
+
+    // RUN 5 SCENARIOS
+    async function runScenario(scenarioKey) {
+      showToast('กำลังรันการจำลองสถานการณ์...', 'info');
+
       // 1. Create order
       const resOrder = await fetch('/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          gameCode: 'ROV',
-          itemName: '500 คูปอง',
-          targetUid: 'UID-TEST-ERR',
-          targetServer: 'TH-1',
-          price: 200,
-          customerEmail: 'tester@example.com'
+          game_id: 'ROV',
+          package_id: 'คูปอง 510 คูปอง',
+          uid: 'UID-INVALID-99',
+          server_id: 'TH-1',
+          amount: 200,
+          customer_id: 'CUST-DEMO'
         })
       });
       const orderJson = await resOrder.json();
-      const orderNo = orderJson.data.orderNo;
-
-      if (caseType === 'case1') {
-        // Pay -> Claim -> Fail Wrong UID
-        await fetch('/webhooks/bank', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ event: 'PAYMENT_RECEIVED', orderNo, amount: 200, transRef: 'TX-CASE1' }) });
-        await fetch(`/bots/orders/${orderNo}/claim`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ botId: 'BOT-1' }) });
-        await fetch(`/bots/orders/${orderNo}/fail`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ botId: 'BOT-1', errorCode: 'PLAYER_NOT_FOUND', errorMessage: 'UID หรือเซิร์ฟเวอร์ไม่ถูกต้อง' }) });
-        alert(`จำลองเคส 1 สำเร็จ! ออเดอร์ ${orderNo} ติดสถานะ DELAYED (UID ผิด) ลูกค้าสามารถกดปุ่ม 'แก้ UID' เพื่อใส่ UID ที่ถูกต้องแล้วระบบจะส่งต่อให้บอททำต่ออัตโนมัติ`);
-      } else if (caseType === 'case2') {
-        // Maintenance
-        await fetch('/webhooks/bank', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ event: 'PAYMENT_RECEIVED', orderNo, amount: 200, transRef: 'TX-CASE2' }) });
-        await fetch(`/bots/orders/${orderNo}/claim`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ botId: 'BOT-1' }) });
-        await fetch(`/bots/orders/${orderNo}/fail`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ botId: 'BOT-1', errorCode: 'GAME_MAINTENANCE', errorMessage: 'เกมปิดปรับปรุงประจำสัปดาห์' }) });
-        alert(`จำลองเคส 2 สำเร็จ! ออเดอร์ ${orderNo} แจ้งเกมปิดปรับปรุง (ลูกค้าเลือกถือออเดอร์รอเปิดเซิร์ฟ หรือกด Refund ได้)`);
-      } else if (caseType === 'case3') {
-        // Bot Crash
-        await fetch('/webhooks/bank', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ event: 'PAYMENT_RECEIVED', orderNo, amount: 200, transRef: 'TX-CASE3' }) });
-        await fetch(`/bots/orders/${orderNo}/claim`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ botId: 'CRASHED-BOT' }) });
-        await fetch('/admin/jobs/trigger-recovery', { method: 'POST' });
-        alert(`จำลองเคส 3 สำเร็จ! ตรวจพบบอท CRASHED-BOT ขาด Heartbeat ระบบดึงงาน ${orderNo} คืนกลับคิว QUEUED ให้บอทอื่นทำแทนอัตโนมัติ`);
-      } else if (caseType === 'case4') {
-        // Underpayment
-        await fetch('/webhooks/bank', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ event: 'PAYMENT_RECEIVED', orderNo, amount: 150, transRef: 'TX-UNDER' }) });
-        alert(`จำลองเคส 4 สำเร็จ! ออเดอร์ราคา 200 บาท แต่โอนมา 150 บาท ระบบปรับสถานะเป็น WAITING_SUPPLEMENTARY_PAYMENT และส่งแจ้งเตือนยอดขาด`);
-      } else if (caseType === 'case5') {
-        // Out of Stock & Refund
-        await fetch('/webhooks/bank', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ event: 'PAYMENT_RECEIVED', orderNo, amount: 200, transRef: 'TX-CASE5' }) });
-        await fetch(`/orders/${orderNo}/refund`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ reason: 'OUT_OF_STOCK', actor: 'SYSTEM' }) });
-        alert(`จำลองเคส 5 สำเร็จ! สินค้าหมดกะทันหัน ระบบทำการคืนเงิน (Auto-Refund) และปรับสถานะเป็น REFUNDED ทันที`);
+      if (!orderJson.success) {
+        showToast('สร้างออเดอร์ทดสอบไม่สำเร็จ', 'error');
+        return;
       }
+      const orderNo = orderJson.data.order_no || orderJson.data.orderNo;
+
+      if (scenarioKey === 'case1') {
+        // Pay -> Bot Claim -> Bot Permanent Fail (UID Not Found)
+        await fetch('/webhooks/bank', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ eventId: 'EVT-' + Date.now(), orderNo, amount: 200, paymentStatus: 'SUCCESS' }) });
+        await fetch(`/bots/orders/${orderNo}/claim`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ bot_id: 'BOT-01' }) });
+        await fetch(`/bots/orders/${orderNo}/fail`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ bot_id: 'BOT-01', failure_type: 'PERMANENT', reason: 'UID ไม่ถูกต้อง ไม่พบตัวละครในเซิร์ฟเวอร์' }) });
+        showToast(`เคส 1: ออเดอร์ ${orderNo} ติดสถานะ FAILED! กดปุ่ม "แก้ UID" เพื่อใส่ UID ใหม่และส่งคิวอัตโนมัติ`, 'warning');
+      } else if (scenarioKey === 'case2') {
+        // Pay -> Bot Claim -> Bot Transient Fail (Network timeout / 503)
+        await fetch('/webhooks/bank', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ eventId: 'EVT-' + Date.now(), orderNo, amount: 200, paymentStatus: 'SUCCESS' }) });
+        await fetch(`/bots/orders/${orderNo}/claim`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ bot_id: 'BOT-02' }) });
+        await fetch(`/bots/orders/${orderNo}/fail`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ bot_id: 'BOT-02', failure_type: 'TRANSIENT', reason: 'Game provider API connection timed out' }) });
+        showToast(`เคส 2: ออเดอร์ ${orderNo} พบ Transient Error! ระบบส่งกลับคิว QUEUED พร้อมตั้งเวลา Exponential Backoff`, 'info');
+      } else if (scenarioKey === 'case3') {
+        // Pay -> Bot Claim with short lease -> Trigger recovery
+        await fetch('/webhooks/bank', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ eventId: 'EVT-' + Date.now(), orderNo, amount: 200, paymentStatus: 'SUCCESS' }) });
+        await fetch(`/bots/orders/${orderNo}/claim`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ bot_id: 'CRASHED-BOT-99', lease_seconds: 1 }) });
+        // wait 1.2s then trigger recovery
+        setTimeout(async () => {
+          await fetch('/admin/jobs/trigger-recovery', { method: 'POST' });
+          showToast(`เคส 3: บอท CRASHED-BOT ขาด Heartbeat! ระบบดึงออเดอร์ ${orderNo} กลับเข้าคิว QUEUED ให้บอทอื่นทำแทน`, 'success');
+          loadOrders();
+        }, 1200);
+      } else if (scenarioKey === 'case4') {
+        // Underpayment
+        await fetch('/webhooks/bank', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ eventId: 'EVT-' + Date.now(), orderNo, amount: 150, paymentStatus: 'SUCCESS' }) });
+        showToast(`เคส 4: ออเดอร์ ${orderNo} ราคา 200 บ. โอนมา 150 บ. ย้ายไปสถานะ DELAYED (Underpayment)`, 'warning');
+      } else if (scenarioKey === 'case5') {
+        // Pay -> Admin Refund
+        await fetch('/webhooks/bank', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ eventId: 'EVT-' + Date.now(), orderNo, amount: 200, paymentStatus: 'SUCCESS' }) });
+        await fetch(`/orders/${orderNo}/refund`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ reason: 'สินค้าหมดสต็อกกะทันหัน หรือลูกค้ายกเลิกคำสั่งซื้อ' }) });
+        showToast(`เคส 5: คืนเงินออเดอร์ ${orderNo} สำเร็จ! ย้ายไปแท็บ History สถานะ REFUNDED`, 'success');
+      }
+
       loadOrders();
     }
 
+    // Close modal on click outside
+    window.onclick = function(event) {
+      const modal = document.getElementById('timeline-modal');
+      if (event.target === modal) {
+        modal.style.display = 'none';
+      }
+    };
+
+    // Auto initial load & poll every 5s
     loadOrders();
+    setInterval(loadOrders, 5000);
   </script>
 </body>
 </html>

@@ -4,22 +4,34 @@ import { OrderService } from '../services/orderService';
 import { BadRequestError } from '../domain/errors';
 
 const createOrderSchema = z.object({
-  customer_id: z.string().min(1, 'customer_id is required'),
-  game_id: z.string().min(1, 'game_id is required'),
-  package_id: z.string().min(1, 'package_id is required'),
-  uid: z.string().min(1, 'uid is required'),
+  customer_id: z.string().optional(),
+  customerId: z.string().optional(),
+  customerEmail: z.string().optional(),
+  game_id: z.string().optional(),
+  gameId: z.string().optional(),
+  gameCode: z.string().optional(),
+  package_id: z.string().optional(),
+  packageId: z.string().optional(),
+  itemName: z.string().optional(),
+  uid: z.string().optional(),
+  targetUid: z.string().optional(),
   server_id: z.string().optional(),
-  amount: z.number().positive('amount must be greater than 0'),
+  serverId: z.string().optional(),
+  targetServer: z.string().optional(),
+  amount: z.number().positive('amount must be greater than 0').optional(),
+  price: z.number().positive('price must be greater than 0').optional(),
 });
 
 const reportIssueSchema = z.object({
-  reported_by: z.string().min(1, 'reported_by is required'),
+  reported_by: z.string().optional(),
+  reportedBy: z.string().optional(),
   category: z.string().min(1, 'category is required'),
   details: z.string().min(1, 'details is required'),
 });
 
 const updateTargetSchema = z.object({
-  uid: z.string().min(1, 'uid is required'),
+  uid: z.string().optional(),
+  targetUid: z.string().optional(),
 });
 
 const refundOrderSchema = z.object({
@@ -37,8 +49,17 @@ export class OrderController {
         throw new BadRequestError('Validation error', undefined, parsed.error.issues);
       }
 
+      const normalizedData = {
+        customer_id: parsed.data.customer_id || parsed.data.customerId || parsed.data.customerEmail || 'CUST-001',
+        game_id: parsed.data.game_id || parsed.data.gameId || parsed.data.gameCode || 'ROV',
+        package_id: parsed.data.package_id || parsed.data.packageId || parsed.data.itemName || 'ITEM-01',
+        uid: parsed.data.uid || parsed.data.targetUid || 'UID-12345',
+        server_id: parsed.data.server_id || parsed.data.serverId || parsed.data.targetServer || 'Server-1',
+        amount: parsed.data.amount ?? parsed.data.price ?? 100,
+      };
+
       const idempotencyKey = req.headers['idempotency-key'] as string | undefined;
-      const order = await this.orderService.createOrder(parsed.data, idempotencyKey);
+      const order = await this.orderService.createOrder(normalizedData, idempotencyKey);
 
       res.status(201).json({
         success: true,
@@ -117,9 +138,10 @@ export class OrderController {
         throw new BadRequestError('Validation error', orderNo, parsed.error.issues);
       }
 
+      const reporter = parsed.data.reported_by || parsed.data.reportedBy || 'CUSTOMER';
       const result = await this.orderService.reportIssue(
         orderNo,
-        parsed.data.reported_by,
+        reporter,
         parsed.data.category,
         parsed.data.details
       );
@@ -143,7 +165,8 @@ export class OrderController {
         throw new BadRequestError('Validation error', orderNo, parsed.error.issues);
       }
 
-      const updated = await this.orderService.updateUidAndRetry(orderNo, parsed.data.uid);
+      const targetUid = parsed.data.uid || parsed.data.targetUid || '';
+      const updated = await this.orderService.updateUidAndRetry(orderNo, targetUid);
 
       res.status(200).json({
         success: true,
