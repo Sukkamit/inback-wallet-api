@@ -1,0 +1,211 @@
+### ============================================================
+### Order Tracking & Issue Management API - HTTP Test Requests
+### Base URL: http://localhost:3000
+### ============================================================
+
+@baseUrl = http://localhost:3000
+
+### 1. Health Check
+GET {{baseUrl}}/health
+
+### 2. API Overview
+GET {{baseUrl}}/
+
+### ============================================================
+### PART 1: Core Order API
+### ============================================================
+
+### 3. Create Order (Success)
+# @name createOrder
+POST {{baseUrl}}/orders
+Content-Type: application/json
+Idempotency-Key: test-order-create-key-001
+
+{
+  "customer_id": "CUST-9876",
+  "game_id": "ROV",
+  "package_id": "PKG-500-COINS",
+  "uid": "PLAYER-ROV-999",
+  "server_id": "ASIA",
+  "amount": 150.00
+}
+
+### 4. Create Order Duplicate Check (Same Idempotency-Key returns cached response)
+POST {{baseUrl}}/orders
+Content-Type: application/json
+Idempotency-Key: test-order-create-key-001
+
+{
+  "customer_id": "CUST-9876",
+  "game_id": "ROV",
+  "package_id": "PKG-500-COINS",
+  "uid": "PLAYER-ROV-999",
+  "server_id": "ASIA",
+  "amount": 150.00
+}
+
+### 5. Get Order by OrderNo (Valid - replace with actual generated orderNo)
+@sampleOrderNo = {{createOrder.response.body.data.order_no}}
+GET {{baseUrl}}/orders/{{sampleOrderNo}}
+
+### 6. Get Order - Invalid format (Must return 400 Bad Request)
+GET {{baseUrl}}/orders/INVALID-FORMAT-999
+
+### 7. Get Order - Non-existent order (Must return 404 Not Found)
+GET {{baseUrl}}/orders/ORD-9999999999999-999
+
+### 8. List Orders - Current Tab (Active: PENDING_PAYMENT, QUEUED, IN_PROGRESS, DELAYED)
+GET {{baseUrl}}/orders?tab=current&page=1&limit=10
+
+### 9. List Orders - History Tab (Finalized: COMPLETED, FAILED, EXPIRED, REFUNDED)
+GET {{baseUrl}}/orders?tab=history&page=1&limit=10
+
+### 10. Get Order Timeline (History of state changes with timestamps)
+GET {{baseUrl}}/orders/{{sampleOrderNo}}/timeline
+
+### 11. Customer Report Issue (Moves active order to DELAYED and records in timeline)
+POST {{baseUrl}}/orders/{{sampleOrderNo}}/report-issue
+Content-Type: application/json
+
+{
+  "reported_by": "CUST-9876",
+  "category": "DELAYED",
+  "details": "Order is taking longer than 10 minutes to process"
+}
+
+### ============================================================
+### PART 2: Bot Flow & 5 Problem Cases Simulation
+### ============================================================
+
+### 12. Case 3: Bank Webhook - Timely Payment Confirmation (Moves PENDING_PAYMENT -> QUEUED)
+POST {{baseUrl}}/webhooks/bank
+Content-Type: application/json
+
+{
+  "eventId": "EVT-BANK-TX-001",
+  "orderNo": "{{sampleOrderNo}}",
+  "amount": 150.00,
+  "paymentStatus": "SUCCESS",
+  "transactionTime": "2026-10-12T12:00:00.000Z"
+}
+
+### 13. Case 3: Bank Webhook - Duplicate Webhook Delivery (Returns IDEMPOTENT_IGNORED)
+POST {{baseUrl}}/webhooks/bank
+Content-Type: application/json
+
+{
+  "eventId": "EVT-BANK-TX-001",
+  "orderNo": "{{sampleOrderNo}}",
+  "amount": 150.00,
+  "paymentStatus": "SUCCESS",
+  "transactionTime": "2026-10-12T12:00:00.000Z"
+}
+
+### 14. Case 2: Bot 1 Claims Order Atomically (Moves QUEUED -> IN_PROGRESS with lease)
+POST {{baseUrl}}/bots/orders/{{sampleOrderNo}}/claim
+Content-Type: application/json
+
+{
+  "bot_id": "BOT-WORKER-01",
+  "lease_seconds": 60
+}
+
+### 15. Case 2: Bot 2 Attempts Race Condition Claim on Same Order (Must return 409 Conflict)
+POST {{baseUrl}}/bots/orders/{{sampleOrderNo}}/claim
+Content-Type: application/json
+
+{
+  "bot_id": "BOT-WORKER-02",
+  "lease_seconds": 60
+}
+
+### 16. Case 1: Bot Heartbeat Renewal (Extends lease by 60s)
+POST {{baseUrl}}/bots/orders/{{sampleOrderNo}}/heartbeat
+Content-Type: application/json
+
+{
+  "bot_id": "BOT-WORKER-01",
+  "lease_extension_seconds": 60
+}
+
+### 17. Bot Completes Top-up (Moves IN_PROGRESS -> COMPLETED)
+POST {{baseUrl}}/bots/orders/{{sampleOrderNo}}/complete
+Content-Type: application/json
+
+{
+  "bot_id": "BOT-WORKER-01",
+  "external_transaction_id": "PROVIDER-TX-778899"
+}
+
+### ============================================================
+### Case 4: Permanent Failure (Invalid UID) -> Update UID & Requeue
+### ============================================================
+
+### 18. Create Order for Case 4 Test
+# @name createOrderCase4
+POST {{baseUrl}}/orders
+Content-Type: application/json
+
+{
+  "customer_id": "CUST-CASE4",
+  "game_id": "VALORANT",
+  "package_id": "PKG-VP-1000",
+  "uid": "WRONG_UID_111",
+  "amount": 250.00
+}
+
+@case4OrderNo = {{createOrderCase4.response.body.data.order_no}}
+
+### 19. Confirm Payment for Case 4 Order
+POST {{baseUrl}}/webhooks/bank
+Content-Type: application/json
+
+{
+  "eventId": "EVT-CASE4-PAYMENT",
+  "orderNo": "{{case4OrderNo}}",
+  "amount": 250.00,
+  "paymentStatus": "SUCCESS",
+  "transactionTime": "2026-10-12T12:05:00.000Z"
+}
+
+### 20. Bot Claims Order
+POST {{baseUrl}}/bots/orders/{{case4OrderNo}}/claim
+Content-Type: application/json
+
+{
+  "bot_id": "BOT-CASE4-WORKER",
+  "lease_seconds": 60
+}
+
+### 21. Bot Reports Permanent Failure (Invalid UID -> Status becomes FAILED)
+POST {{baseUrl}}/bots/orders/{{case4OrderNo}}/fail
+Content-Type: application/json
+
+{
+  "bot_id": "BOT-CASE4-WORKER",
+  "failure_type": "PERMANENT",
+  "reason": "Player UID WRONG_UID_111 does not exist in game database"
+}
+
+### 22. Customer Corrects UID via Endpoint (Re-queues order: FAILED -> QUEUED)
+PATCH {{baseUrl}}/orders/{{case4OrderNo}}/update-target
+Content-Type: application/json
+
+{
+  "uid": "CORRECT_UID_99999"
+}
+
+### 23. Check Timeline of Case 4 Order
+GET {{baseUrl}}/orders/{{case4OrderNo}}/timeline
+
+### ============================================================
+### Case 5: Background Scheduler Trigger (Lease expiry, Unpaid expiry, SLA check)
+### ============================================================
+
+### 24. Trigger Background Recovery Job Cycle Manually
+POST {{baseUrl}}/admin/jobs/trigger-recovery
+Content-Type: application/json
+
+{
+  "slaMinutes": 10
+}

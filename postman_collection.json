@@ -1,0 +1,208 @@
+{
+  "info": {
+    "name": "Order Tracking & Issue Management API",
+    "description": "Postman Collection for Game Top-up Order Tracking API & 5 Problem Cases",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "orderNo",
+      "value": "ORD-1791780000000-123",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Core Order API",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/health"
+          }
+        },
+        {
+          "name": "API Root Overview",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/"
+          }
+        },
+        {
+          "name": "POST Create Order (with Idempotency-Key)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Idempotency-Key", "value": "demo-idempotency-key-001" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer_id\": \"CUST-1001\",\n  \"game_id\": \"ROV\",\n  \"package_id\": \"PKG-500-COINS\",\n  \"uid\": \"PLAYER-ROV-999\",\n  \"server_id\": \"ASIA\",\n  \"amount\": 150.00\n}"
+            },
+            "url": "{{baseUrl}}/orders"
+          }
+        },
+        {
+          "name": "GET Order by orderNo (Valid)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/orders/{{orderNo}}"
+          }
+        },
+        {
+          "name": "GET Order by orderNo (Invalid Format -> 400)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/orders/INVALID-123"
+          }
+        },
+        {
+          "name": "GET Order by orderNo (Not Found -> 404)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/orders/ORD-9999999999999-999"
+          }
+        },
+        {
+          "name": "GET Orders (tab=current)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/orders?tab=current&page=1&limit=10"
+          }
+        },
+        {
+          "name": "GET Orders (tab=history)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/orders?tab=history&page=1&limit=10"
+          }
+        },
+        {
+          "name": "GET Order Timeline",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/orders/{{orderNo}}/timeline"
+          }
+        },
+        {
+          "name": "POST Report Issue",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reported_by\": \"CUST-1001\",\n  \"category\": \"DELAYED\",\n  \"details\": \"Order delayed past SLA\"\n}"
+            },
+            "url": "{{baseUrl}}/orders/{{orderNo}}/report-issue"
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Bot Endpoints (Cases 1, 2, 4)",
+      "item": [
+        {
+          "name": "Bot Claim Order (Case 2 Atomic Claim)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bot_id\": \"BOT-01\",\n  \"lease_seconds\": 60\n}"
+            },
+            "url": "{{baseUrl}}/bots/orders/{{orderNo}}/claim"
+          }
+        },
+        {
+          "name": "Bot Heartbeat (Case 1 Lease Renewal)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bot_id\": \"BOT-01\",\n  \"lease_extension_seconds\": 60\n}"
+            },
+            "url": "{{baseUrl}}/bots/orders/{{orderNo}}/heartbeat"
+          }
+        },
+        {
+          "name": "Bot Complete Top-up",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bot_id\": \"BOT-01\",\n  \"external_transaction_id\": \"TX-BANK-8899\"\n}"
+            },
+            "url": "{{baseUrl}}/bots/orders/{{orderNo}}/complete"
+          }
+        },
+        {
+          "name": "Bot Report Failure (Case 4 Transient vs Permanent)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bot_id\": \"BOT-01\",\n  \"failure_type\": \"PERMANENT\",\n  \"reason\": \"Character UID not found in server\"\n}"
+            },
+            "url": "{{baseUrl}}/bots/orders/{{orderNo}}/fail"
+          }
+        },
+        {
+          "name": "PATCH Update UID & Requeue (Case 4)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"uid\": \"CORRECTED-UID-9999\"\n}"
+            },
+            "url": "{{baseUrl}}/orders/{{orderNo}}/update-target"
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Bank Webhook (Case 3)",
+      "item": [
+        {
+          "name": "POST Bank Webhook Payment Confirmed",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eventId\": \"EVT-DEMO-001\",\n  \"orderNo\": \"{{orderNo}}\",\n  \"amount\": 150.00,\n  \"paymentStatus\": \"SUCCESS\",\n  \"transactionTime\": \"2026-10-12T12:00:00.000Z\"\n}"
+            },
+            "url": "{{baseUrl}}/webhooks/bank"
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Admin & Background Recovery (Case 5)",
+      "item": [
+        {
+          "name": "POST Trigger Background Recovery Job",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"slaMinutes\": 10\n}"
+            },
+            "url": "{{baseUrl}}/admin/jobs/trigger-recovery"
+          }
+        }
+      ]
+    }
+  ]
+}
