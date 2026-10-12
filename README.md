@@ -203,7 +203,24 @@ npm install
 2. ตั้งค่าไฟล์ `.env`:
 ```bash
 cp .env.example .env
+# หรือบน Windows PowerShell:
+Copy-Item .env.example .env
 ```
+
+### ⚙️ รายละเอียดตัวแปร Environment Variables (`.env`)
+| ตัวแปร (Variable) | ค่าเริ่มต้น (Default) | คำอธิบาย |
+|---|---|---|
+| `PORT` | `3000` | พอร์ตสำหรับเรียกใช้งาน RESTful API และ Web Demo |
+| `NODE_ENV` | `development` | สภาพแวดล้อมการทำงาน (`development` / `production` / `test`) |
+| `LOG_LEVEL` | `info` | ระดับการบันทึก Log ของ Winston (`debug`, `info`, `warn`, `error`) |
+| `DATABASE_URL` | `postgresql://postgres:postgres@localhost:5432/order_tracking_db` | Connection String สำหรับเชื่อมต่อฐานข้อมูล PostgreSQL |
+| `DB_POOL_MAX` | `20` | จำนวน Connection สูงสุดใน Connection Pool |
+| `PAYMENT_EXPIRY_MINUTES` | `15` | ระยะเวลาหมดอายุของ QR Code ชำระเงิน (เคส 5) |
+| `QUEUE_SLA_MINUTES` | `10` | เกณฑ์ SLA คิวสูงสุด หากเกินจะปรับเป็น DELAYED (เคส 5) |
+| `DEFAULT_LEASE_SECONDS` | `60` | ระยะเวลาถือสิทธิ์ Lease ของ Bot ต่อออเดอร์ (เคส 1) |
+| `MAX_BOT_RETRIES` | `3` | จำนวนครั้งสูงสุดที่อนุญาตให้ Bot ลองใหม่กรณีขัดข้องชั่วคราว |
+| `BANK_WEBHOOK_SECRET` | `bank_webhook_secret_key` | Secret Key สำหรับตรวจสอบ HMAC-SHA256 Webhook ธนาคาร (เคส 3) |
+
 3. รัน Migration และเริ่มเซิร์ฟเวอร์แบบ Development:
 ```bash
 npm run dev
