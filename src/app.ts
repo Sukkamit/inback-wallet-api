@@ -1,4 +1,5 @@
 import express, { Express, Request, Response } from 'express';
+import path from 'path';
 import { OrderController } from './controllers/orderController';
 import { BotController } from './controllers/botController';
 import { WebhookController } from './controllers/webhookController';
@@ -20,6 +21,14 @@ export function createApp(): Express {
   app.use(express.urlencoded({ extended: true }));
   app.use(requestLogger);
 
+  const publicDir = path.join(__dirname, 'public');
+  app.use(express.static(publicDir));
+
+  // Live Interactive Demo UI
+  app.get('/demo', (_req: Request, res: Response) => {
+    res.sendFile(path.join(publicDir, 'index.html'));
+  });
+
   // Health check
   app.get('/health', (_req: Request, res: Response) => {
     res.status(200).json({
@@ -35,6 +44,7 @@ export function createApp(): Express {
       name: 'Game Top-up Order Tracking API',
       version: '1.0.0',
       description: 'Order Tracking API and Issue Management for Game Top-up Bot System',
+      demoDashboard: '/demo',
       endpoints: {
         orders: {
           create: 'POST /orders',
