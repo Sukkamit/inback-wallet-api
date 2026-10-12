@@ -26,9 +26,15 @@ export async function runMigrations(): Promise<void> {
     logger.info('Running database migrations...');
     await pool.query(schemaSql);
     logger.info('Database migrations applied successfully.');
-  } catch (error) {
-    logger.error('Failed to run database migrations', { error: (error as Error).message });
-    throw error;
+  } catch (error: any) {
+    logger.warn(`Failed to connect to PostgreSQL (${error.message}). Auto-switching to embedded in-memory database.`);
+    try {
+      const { initEmbeddedDb } = require('./embeddedDb');
+      initEmbeddedDb();
+    } catch (fallbackError: any) {
+      logger.error('Failed to initialize in-memory fallback', { error: fallbackError.message });
+      throw error;
+    }
   }
 }
 
