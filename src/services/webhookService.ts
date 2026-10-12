@@ -70,6 +70,52 @@ export class WebhookService {
 
       // Check amount matching
       if (Math.abs(order.amount - amount) > 0.01) {
+        if (amount < order.amount && order.status === OrderStatus.PENDING_PAYMENT) {
+          logger.warn(`Underpayment received: expected ${order.amount}, received ${amount}. Moving to DELAYED`);
+          
+          OrderStateMachine.assertTransition(order.status, OrderStatus.DELAYED, orderNo);
+          await this.orderRepo.updateStatus(
+            orderNo,
+            OrderStatus.DELAYED,
+            {
+              failure_reason: `UNDERPAYMENT: Expected ${order.amount} THB, received ${amount} THB (Short by ${(order.amount - amount).toFixed(2)} THB)`,
+            },
+            client
+          );
+
+          await this.timelineRepo.record(
+            {
+              order_id: order.id,
+              order_no: orderNo,
+              from_status: OrderStatus.PENDING_PAYMENT,
+              to_status: OrderStatus.DELAYED,
+              actor_type: ActorType.BANK_WEBHOOK,
+              actor_id: 'BANK_WEBHOOK',
+              action: 'UNDERPAYMENT_DETECTED',
+              reason: `Customer underpaid: Expected ${order.amount} THB, received ${amount} THB. Order moved to DELAYED waiting for supplementary payment.`,
+              metadata: { expectedAmount: order.amount, receivedAmount: amount, difference: order.amount - amount, eventId },
+            },
+            client
+          );
+
+          await this.webhookRepo.recordEvent(
+            {
+              event_id: eventId,
+              provider: 'BANK',
+              order_no: orderNo,
+              payload: payload as unknown as Record<string, unknown>,
+              status: 'UNDERPAID_DELAYED',
+            },
+            client
+          );
+
+          return {
+            status: 'UNDERPAYMENT_DELAYED',
+            message: `Underpayment detected (received ${amount}/${order.amount}). Order marked as DELAYED.`,
+            orderNo,
+          };
+        }
+
         logger.warn(`Webhook payment amount mismatch. Expected: ${order.amount}, got: ${amount}`);
         throw new BadRequestError(
           `Payment amount mismatch: expected ${order.amount}, received ${amount}`,

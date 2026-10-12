@@ -486,6 +486,10 @@
       return String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
 
+    function getErrorMessage(json, defaultMsg = 'เกิดข้อผิดพลาด') {
+      return json?.message || json?.error?.message || json?.code || defaultMsg;
+    }
+
     // CREATE ORDER
     async function submitCreateOrder() {
       const btn = document.getElementById('btn-create');
@@ -511,7 +515,7 @@
           showToast(`สร้างออเดอร์ ${orderNo} สำเร็จ! สถานะ PENDING_PAYMENT`, 'success');
           loadOrders();
         } else {
-          showToast(`สร้างออเดอร์ไม่สำเร็จ: ${json.error?.message || 'Invalid input'}`, 'error');
+          showToast(`สร้างออเดอร์ไม่สำเร็จ: ${getErrorMessage(json)}`, 'error');
         }
       } catch (err) {
         showToast('เกิดข้อผิดพลาดในการติดต่อ Server', 'error');
@@ -539,7 +543,7 @@
           showToast(`จำลองการโอนเงิน ${amount} บาทสำเร็จ! ออเดอร์ ${orderNo} ย้ายเข้าคิว QUEUED`, 'success');
           loadOrders();
         } else {
-          showToast(`ชำระเงินไม่สำเร็จ: ${json.error?.message || 'Error'}`, 'error');
+          showToast(`ชำระเงินไม่สำเร็จ: ${getErrorMessage(json)}`, 'error');
         }
       } catch (err) {
         showToast('ส่ง Webhook ไม่สำเร็จ', 'error');
@@ -566,7 +570,7 @@
           showToast(`จำลองการโอนเงินไม่ครบ (${underAmount}/${fullAmount} บ.)! ออเดอร์ ${orderNo} ย้ายไป DELAYED`, 'warning');
           loadOrders();
         } else {
-          showToast(`เกิดข้อผิดพลาด: ${json.error?.message}`, 'error');
+          showToast(`เกิดข้อผิดพลาด: ${getErrorMessage(json)}`, 'error');
         }
       } catch (err) {
         showToast('ส่ง Webhook ไม่สำเร็จ', 'error');
@@ -586,7 +590,7 @@
           showToast(`บอท BOT-NODE-01 รับงาน ${orderNo} สำเร็จ (IN_PROGRESS)`, 'success');
           loadOrders();
         } else {
-          showToast(`บอทรับงานไม่สำเร็จ: ${json.error?.message}`, 'error');
+          showToast(`บอทรับงานไม่สำเร็จ: ${getErrorMessage(json)}`, 'error');
         }
       } catch (err) {
         showToast('เชื่อมต่อล้มเหลว', 'error');
@@ -609,7 +613,7 @@
           showToast(`บอทเติมเกมให้ออเดอร์ ${orderNo} สำเร็จ! ย้ายไป COMPLETED`, 'success');
           loadOrders();
         } else {
-          showToast(`เกิดข้อผิดพลาด: ${json.error?.message}`, 'error');
+          showToast(`เกิดข้อผิดพลาด: ${getErrorMessage(json)}`, 'error');
         }
       } catch (err) {
         showToast('เชื่อมต่อล้มเหลว', 'error');
@@ -633,7 +637,7 @@
           showToast(`แจ้ง Transient Error สำเร็จ! ออเดอร์ ${orderNo} ถูกส่งกลับคิว QUEUED พร้อมนับ Retry`, 'warning');
           loadOrders();
         } else {
-          showToast(`เกิดข้อผิดพลาด: ${json.error?.message}`, 'error');
+          showToast(`เกิดข้อผิดพลาด: ${getErrorMessage(json)}`, 'error');
         }
       } catch (err) {
         showToast('เชื่อมต่อล้มเหลว', 'error');
@@ -657,7 +661,7 @@
           showToast(`แจ้ง Permanent Fail สำเร็จ! ออเดอร์ ${orderNo} ติดสถานะ FAILED รอแก้ไข UID`, 'error');
           loadOrders();
         } else {
-          showToast(`เกิดข้อผิดพลาด: ${json.error?.message}`, 'error');
+          showToast(`เกิดข้อผิดพลาด: ${getErrorMessage(json)}`, 'error');
         }
       } catch (err) {
         showToast('เชื่อมต่อล้มเหลว', 'error');
@@ -679,7 +683,7 @@
           showToast(`อัปเดต UID เป็น '${newUid}' สำเร็จ! ออเดอร์ถูกส่งกลับเข้าคิว QUEUED เรียบร้อย`, 'success');
           loadOrders();
         } else {
-          showToast(`แก้ไขไม่สำเร็จ: ${json.error?.message}`, 'error');
+          showToast(`แก้ไขไม่สำเร็จ: ${getErrorMessage(json)}`, 'error');
         }
       } catch (err) {
         showToast('เชื่อมต่อล้มเหลว', 'error');
@@ -701,7 +705,7 @@
           showToast(`ดำเนินการคืนเงินให้ออเดอร์ ${orderNo} สำเร็จ! (สถานะ REFUNDED)`, 'success');
           loadOrders();
         } else {
-          showToast(`คืนเงินไม่สำเร็จ: ${json.error?.message}`, 'error');
+          showToast(`คืนเงินไม่สำเร็จ: ${getErrorMessage(json)}`, 'error');
         }
       } catch (err) {
         showToast('เชื่อมต่อล้มเหลว', 'error');
@@ -726,7 +730,7 @@
           showToast(`บันทึกการแจ้งปัญหาสำเร็จ! ออเดอร์ ${orderNo} ย้ายไปสถานะ DELAYED`, 'warning');
           loadOrders();
         } else {
-          showToast(`แจ้งปัญหาไม่สำเร็จ: ${json.error?.message}`, 'error');
+          showToast(`แจ้งปัญหาไม่สำเร็จ: ${getErrorMessage(json)}`, 'error');
         }
       } catch (err) {
         showToast('เชื่อมต่อล้มเหลว', 'error');
